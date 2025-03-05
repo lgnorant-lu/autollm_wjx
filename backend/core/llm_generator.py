@@ -1,3 +1,17 @@
+"""
+----------------------------------------------------------------
+File name:                  llm_generator.py
+Author:                     Ignorant-lu
+Date created:               2025/03/05
+Description:                LLM答案生成模块，提供基于多种大型语言模型的问卷答案生成功能
+----------------------------------------------------------------
+
+Changed history:            LLM答案生成模块初始版本
+                            2025/03/05: 添加多模型API支持(OpenAI、智谱、百度、阿里云)
+                            2025/03/05: 优化提示词结构和错误处理
+----------------------------------------------------------------
+"""
+
 import json
 import requests
 import os
@@ -12,8 +26,10 @@ logger = logging.getLogger(__name__)
 
 class LLMGenerator:
     """
-    使用LLM生成问卷答案
-    支持多种模型API
+    LLM答案生成器
+    
+    基于大型语言模型生成问卷答案
+    支持多种模型API和自定义提示词
     """
     
     def __init__(self, model_type="aliyun", api_key=None):

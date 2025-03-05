@@ -1,3 +1,16 @@
+"""
+----------------------------------------------------------------
+File name:                  wjx.py
+Author:                     Ignorant-lu
+Date created:               2025/03/05
+Description:                问卷星问卷提交模块，提供自动提交问卷的核心功能
+----------------------------------------------------------------
+
+Changed history:            问卷星问卷提交模块初始版本
+                            2025/03/05: 添加代理支持和提交任务管理功能
+----------------------------------------------------------------
+"""
+
 import requests
 import re
 from datetime import datetime, timedelta
@@ -11,7 +24,11 @@ from core.parser import extract_survey_id, parse_survey
 logger = logging.getLogger(__name__)
 
 class WJXSubmitter:
-    """问卷星提交工具类"""
+    """
+    问卷星提交工具类
+    
+    提供问卷自动提交、答案生成、任务管理等功能
+    """
     
     def __init__(self, survey_url="https://www.wjx.cn/vm/wWwct2F.aspx", config_path=None):
         """

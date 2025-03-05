@@ -1,3 +1,16 @@
+"""
+----------------------------------------------------------------
+File name:                  config_routes.py
+Author:                     Ignorant-lu
+Date created:               2025/03/05
+Description:                系统配置路由模块，提供配置管理的API接口
+----------------------------------------------------------------
+
+Changed history:            系统配置路由模块初始版本
+                            2025/03/05: 增加代理和LLM配置管理
+----------------------------------------------------------------
+"""
+
 from flask import Blueprint, request, jsonify
 import json
 import os
@@ -8,7 +21,14 @@ config_bp = Blueprint('config', __name__)
 CONFIG_FILE = 'data/system_config.json'
 
 def load_config():
-    """加载系统配置"""
+    """
+    加载系统配置
+    
+    从配置文件读取系统配置信息
+    
+    Returns:
+        dict: 系统配置信息
+    """
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
@@ -25,14 +45,28 @@ def load_config():
     }
 
 def save_config(config):
-    """保存系统配置"""
+    """
+    保存系统配置
+    
+    将系统配置信息写入配置文件
+    
+    Args:
+        config (dict): 系统配置信息
+    """
     os.makedirs(os.path.dirname(CONFIG_FILE), exist_ok=True)
     with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
 
 @config_bp.route('', methods=['GET'])
 def get_config():
-    """获取系统配置"""
+    """
+    获取系统配置
+    
+    返回系统配置信息
+    
+    Returns:
+        dict: 系统配置信息
+    """
     config = load_config()
     # 隐藏敏感信息
     if 'llm_settings' in config and 'api_key' in config['llm_settings']:
@@ -43,7 +77,17 @@ def get_config():
 
 @config_bp.route('', methods=['PUT'])
 def update_config():
-    """更新系统配置"""
+    """
+    更新系统配置
+    
+    更新系统配置信息
+    
+    Args:
+        data (dict): 新的系统配置信息
+    
+    Returns:
+        dict: 更新结果
+    """
     data = request.json
     if not data:
         return jsonify({"error": "No data provided"}), 400

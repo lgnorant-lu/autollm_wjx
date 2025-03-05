@@ -1,3 +1,17 @@
+"""
+----------------------------------------------------------------
+File name:                  survey_service.py
+Author:                     Ignorant-lu
+Date created:               2025/03/05
+Description:                问卷服务模块，提供问卷的解析、存储和管理功能
+----------------------------------------------------------------
+
+Changed history:            问卷服务模块初始版本
+                            2025/03/05: 增加问卷标题和副标题提取支持
+                            2025/03/05: 优化问卷结构存储格式
+----------------------------------------------------------------
+"""
+
 import os
 import json
 import time
@@ -8,14 +22,28 @@ from config import Config
 logger = logging.getLogger(__name__)
 
 class SurveyService:
+    """
+    问卷服务类
+    
+    负责问卷的获取、解析、存储和管理
+    提供问卷元数据的索引和检索功能
+    """
     def __init__(self):
-        """初始化问卷服务"""
+        """
+        初始化问卷服务
+        
+        设置问卷存储目录和索引文件
+        """
         self.surveys_dir = Config.SURVEYS_DIR
         self.index_file = Config.SURVEY_INDEX_FILE
         self._load_index()
     
     def _load_index(self):
-        """加载问卷索引"""
+        """
+        加载问卷索引
+        
+        从索引文件中读取问卷元数据
+        """
         try:
             if os.path.exists(self.index_file):
                 with open(self.index_file, 'r', encoding='utf-8') as f:
@@ -35,12 +63,20 @@ class SurveyService:
             self._save_index()
     
     def _save_index(self):
-        """保存问卷索引"""
+        """
+        保存问卷索引
+        
+        将问卷元数据写入索引文件
+        """
         with open(self.index_file, 'w', encoding='utf-8') as f:
             json.dump(self.index, f, ensure_ascii=False, indent=2)
     
     def parse_survey(self, url):
-        """解析问卷"""
+        """
+        解析问卷
+        
+        获取问卷内容并存储到文件中
+        """
         logger.info(f"开始解析问卷: {url}")
         
         try:
@@ -127,11 +163,19 @@ class SurveyService:
             raise Exception(f"解析问卷失败: {str(e)}")
     
     def get_all_surveys(self):
-        """获取所有问卷的基本信息"""
+        """
+        获取所有问卷的基本信息
+        
+        返回问卷索引中的所有条目
+        """
         return self.index
     
     def get_survey_by_id(self, survey_id):
-        """获取指定问卷的详细信息"""
+        """
+        获取指定问卷的详细信息
+        
+        根据问卷ID从索引中查找并返回问卷数据
+        """
         for entry in self.index:
             if entry["id"] == survey_id:
                 try:
@@ -145,7 +189,11 @@ class SurveyService:
         return None
     
     def delete_survey(self, survey_id):
-        """删除问卷"""
+        """
+        删除问卷
+        
+        根据问卷ID从索引中查找并删除问卷数据和文件
+        """
         for i, entry in enumerate(self.index):
             if entry["id"] == survey_id:
                 try:
@@ -161,7 +209,11 @@ class SurveyService:
         return False 
     
     def _extract_title_from_questions(self, questions):
-        """从问卷数据中提取标题"""
+        """
+        从问卷数据中提取标题
+        
+        尝试从问题对象中找到标题相关字段
+        """
         try:
             # 尝试从问题对象中找到标题相关字段
             if hasattr(questions, 'title'):
@@ -185,7 +237,11 @@ class SurveyService:
         return None
 
     def _convert_to_serializable(self, questions):
-        """将Question对象转换为可序列化的字典"""
+        """
+        将Question对象转换为可序列化的字典
+        
+        递归转换问题对象和选项对象为字典
+        """
         if hasattr(questions, '__iter__'):
             serializable_questions = []
             for q in questions:

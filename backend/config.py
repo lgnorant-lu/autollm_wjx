@@ -1,7 +1,25 @@
+"""
+----------------------------------------------------------------
+File name:                  config.py
+Author:                     Ignorant-lu
+Date created:               2025/03/05
+Description:                系统配置模块，管理应用程序的各项配置和环境变量
+----------------------------------------------------------------
+
+Changed history:            初始化系统配置信息
+                            2025/03/05: 添加目录配置、LLM配置和代理配置
+----------------------------------------------------------------
+"""
+
 import os
 
 # 应用基础配置
 class Config:
+    """
+    应用程序配置类，包含所有全局配置项
+    
+    包括目录路径、文件位置、API密钥和代理配置等
+    """
     # 基础目录 - 修改为使用绝对路径
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     
@@ -35,4 +53,4 @@ class Config:
     }
     
     # 代理配置
-    DEFAULT_PROXY_URL = os.environ.get('DEFAULT_PROXY_URL', '') 
+    DEFAULT_PROXY_URL = os.environ.get('DEFAULT_PROXY_URL', '')

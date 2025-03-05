@@ -1,3 +1,17 @@
+"""
+----------------------------------------------------------------
+File name:                  task_service.py
+Author:                     Ignorant-lu
+Date created:               2025/03/05
+Description:                任务管理服务，提供问卷任务的创建、查询、执行和管理功能
+----------------------------------------------------------------
+
+Changed history:            任务管理服务初始版本
+                            2025/03/05: 添加任务状态实时监控功能
+                            2025/03/05: 增强任务并发处理能力
+----------------------------------------------------------------
+"""
+
 import os
 import json
 import time
@@ -12,8 +26,18 @@ from core.wjx import WJXSubmitter
 logger = logging.getLogger(__name__)
 
 class TaskService:
+    """
+    任务管理服务类
+    
+    负责问卷任务的创建、执行、监控和管理
+    提供任务状态跟踪、数据存储和并发执行功能
+    """
     def __init__(self):
-        """初始化任务服务"""
+        """
+        初始化任务服务
+        
+        设置任务存储目录和相关服务
+        """
         self.config = Config()
         self.survey_service = SurveyService()
         
@@ -34,7 +58,11 @@ class TaskService:
         # self._restore_running_tasks()
     
     def _load_index(self):
-        """加载任务索引"""
+        """
+        加载任务索引
+        
+        从索引文件中读取任务列表
+        """
         try:
             if os.path.exists(self.index_file):
                 with open(self.index_file, 'r', encoding='utf-8') as f:
@@ -52,12 +80,20 @@ class TaskService:
             return []
     
     def _save_index(self):
-        """保存任务索引"""
+        """
+        保存任务索引
+        
+        将任务列表写入索引文件
+        """
         with open(self.index_file, 'w', encoding='utf-8') as f:
             json.dump(self.index, f, ensure_ascii=False, indent=2)
     
     def _run_task(self, task_id, task_data):
-        """执行任务的线程函数"""
+        """
+        执行任务的线程函数
+        
+        负责任务的执行和状态更新
+        """
         logger.info(f"开始执行任务: {task_id}")
         
         survey = self.survey_service.get_survey_by_id(task_data['survey_id'])
@@ -133,7 +169,11 @@ class TaskService:
         logger.info(f"任务执行完成: {task_id}, 成功: {success_count}, 失败: {fail_count}")
     
     def _update_task_status(self, task_id, status, message=None):
-        """更新任务状态"""
+        """
+        更新任务状态
+        
+        修改任务状态并保存到文件
+        """
         task_file = os.path.join(self.tasks_dir, f"{task_id}.json")
         try:
             with open(task_file, 'r', encoding='utf-8') as f:
@@ -160,7 +200,11 @@ class TaskService:
             return False
     
     def _update_task_progress(self, task_id, progress, success_count, fail_count):
-        """更新任务进度"""
+        """
+        更新任务进度
+        
+        修改任务进度并保存到文件
+        """
         task_file = os.path.join(self.tasks_dir, f"{task_id}.json")
         try:
             with open(task_file, 'r', encoding='utf-8') as f:
@@ -200,7 +244,11 @@ class TaskService:
             return False
     
     def create_task(self, task_data):
-        """创建新任务"""
+        """
+        创建新任务
+        
+        生成任务ID，保存任务数据并更新索引
+        """
         try:
             task_id = str(uuid.uuid4())
             
@@ -277,11 +325,19 @@ class TaskService:
             raise
     
     def get_all_tasks(self):
-        """获取所有任务"""
+        """
+        获取所有任务
+        
+        返回任务索引列表
+        """
         return self.index
     
     def get_task_by_id(self, task_id):
-        """获取指定任务详情"""
+        """
+        获取指定任务详情
+        
+        根据任务ID查找任务数据
+        """
         for entry in self.index:
             if entry["id"] == task_id:
                 try:
@@ -293,7 +349,11 @@ class TaskService:
         return None
     
     def update_task_status(self, task_id, status):
-        """更新任务状态"""
+        """
+        更新任务状态
+        
+        根据任务ID更新任务状态
+        """
         task = self.get_task_by_id(task_id)
         if not task:
             return False
@@ -335,7 +395,11 @@ class TaskService:
         return False
     
     def delete_task(self, task_id):
-        """删除任务"""
+        """
+        删除任务
+        
+        根据任务ID删除任务数据和索引
+        """
         for i, entry in enumerate(self.index):
             if entry["id"] == task_id:
                 try:
@@ -361,7 +425,11 @@ class TaskService:
         return False 
 
     def _submit_task(self, task_id, task_data):
-        """执行提交任务"""
+        """
+        执行提交任务
+        
+        负责任务的提交和状态更新
+        """
         try:
             logger.info(f"开始执行任务: {task_id}")
             
@@ -513,11 +581,7 @@ class TaskService:
         """
         根据问卷数据生成答案
         
-        Args:
-            survey: 问卷数据，包含问题列表
-            
-        Returns:
-            构造好的答案数据字符串，格式如 "1$1}2$选项内容"
+        自动生成答案数据
         """
         import random
         submit_data_parts = []
@@ -618,16 +682,10 @@ class TaskService:
         return submit_data 
 
     def get_tasks_paginated(self, page=1, page_size=10, sort_field='created_at', sort_order='desc'):
-        """获取分页任务列表
+        """
+        获取分页任务列表
         
-        Args:
-            page: 页码，从1开始
-            page_size: 每页记录数
-            sort_field: 排序字段
-            sort_order: 排序方向，'asc'或'desc'
-        
-        Returns:
-            (tasks, total): 任务列表和总记录数的元组
+        根据页码和每页记录数返回任务列表
         """
         tasks = []
         

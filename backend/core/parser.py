@@ -1,3 +1,18 @@
+"""
+----------------------------------------------------------------
+File name:                  parser.py
+Author:                     Ignorant-lu
+Date created:               2025/03/05
+Description:                问卷星问卷解析模块，用于解析问卷结构、题目和选项
+----------------------------------------------------------------
+
+Changed history:            问卷星解析模块初始版本
+                            2025/03/05: 增加问卷标题和副标题提取功能
+                            2025/03/05: 改进不同题型处理逻辑，优化选项和ratio配置
+                            2025/03/05: 改进问卷保存格式，使用实际标题
+----------------------------------------------------------------
+"""
+
 from typing import List, Optional, Tuple, Union, Dict
 from dataclasses import dataclass, asdict
 import json
@@ -12,7 +27,12 @@ import time
 
 @dataclass
 class Question:
-    """问卷题目"""
+    """
+    问卷题目数据结构
+    
+    包含题目的各种属性，如题号、题型、标题、选项等
+    支持多种问卷题型的数据存储
+    """
     index: int  # 实际题号
     type: int   # 题型：
     # 1: 填空题
@@ -32,14 +52,36 @@ class Question:
 
 
 class QuestionEncoder(json.JSONEncoder):
+    """
+    问卷题目JSON编码器
+    
+    用于将Question对象序列化为JSON格式
+    """
     def default(self, obj):
+        """
+        转换Question对象为JSON可序列化的字典
+        
+        Args:
+            obj: 要序列化的对象
+            
+        Returns:
+            dict: 序列化后的字典
+        """
         if isinstance(obj, Question):
             return asdict(obj)  # 转换dataclass为字典
         return super().default(obj)
 
 
 def parse_survey(url: str) -> Tuple[List[Question], Dict[str, int]]:
-    """解析问卷HTML并返回题目列表和统计信息"""
+    """
+    解析问卷HTML并返回题目列表和统计信息
+    
+    Args:
+        url: 问卷URL
+        
+    Returns:
+        tuple: 题目列表和统计信息
+    """
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
@@ -160,7 +202,15 @@ def parse_survey(url: str) -> Tuple[List[Question], Dict[str, int]]:
 
 
 def extract_survey_id(url):
-    """从URL中提取问卷ID"""
+    """
+    从URL中提取问卷ID
+    
+    Args:
+        url: 问卷URL
+        
+    Returns:
+        str: 问卷ID
+    """
     import re
     # 尝试匹配标准问卷星URL
     wjx_pattern = r'wjx\.cn/[^/]+/([A-Za-z0-9]+)\.aspx'
@@ -178,7 +228,18 @@ def extract_survey_id(url):
 
 
 def save_questions(questions, output_path=None, url=None, survey_stats=None):
-    """保存问卷题目到JSON文件"""
+    """
+    保存问卷题目到JSON文件
+    
+    Args:
+        questions: 问卷题目列表
+        output_path: 输出文件路径
+        url: 问卷URL
+        survey_stats: 问卷统计信息
+        
+    Returns:
+        str: 输出文件路径
+    """
     # 自动生成文件名
     if output_path is None:
         if url:

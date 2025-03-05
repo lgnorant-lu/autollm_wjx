@@ -1,3 +1,18 @@
+"""
+----------------------------------------------------------------
+File name:                  task_routes.py
+Author:                     Ignorant-lu
+Date created:               2025/03/05
+Description:                任务相关路由模块，提供任务创建、管理和操作的API接口
+----------------------------------------------------------------
+
+Changed history:            任务路由模块初始版本
+                            2025/03/05: 增加任务状态控制API接口
+                            2025/03/05: 增加任务分页和排序功能
+                            2025/03/05: 完善错误处理和日志记录
+----------------------------------------------------------------
+"""
+
 from flask import Blueprint, request, jsonify
 from services.task_service import TaskService
 import logging
@@ -10,6 +25,14 @@ task_service = TaskService()
 
 @task_bp.route('', methods=['POST'])
 def create_task():
+    """
+    创建新任务API
+    
+    接收任务参数，创建新的问卷提交任务
+    
+    Returns:
+        JSON: 创建结果，包含任务ID和基本信息
+    """
     """创建新任务"""
     data = request.json
     required_fields = ['survey_id', 'count']
@@ -29,6 +52,14 @@ def create_task():
 
 @task_bp.route('', methods=['GET'])
 def get_tasks():
+    """
+    获取所有任务API
+    
+    支持分页和排序，返回任务列表
+    
+    Returns:
+        JSON: 任务列表，包含任务基本信息和分页信息
+    """
     """获取所有任务，支持分页和排序"""
     page = request.args.get('page', 1, type=int)
     page_size = request.args.get('page_size', 10, type=int)
@@ -68,6 +99,14 @@ def get_tasks():
 
 @task_bp.route('/<task_id>', methods=['GET'])
 def get_task(task_id):
+    """
+    获取任务详情API
+    
+    根据任务ID获取任务详细信息
+    
+    Returns:
+        JSON: 任务详细信息
+    """
     """获取任务详情"""
     task = task_service.get_task_by_id(task_id)
     if not task:
@@ -76,6 +115,14 @@ def get_task(task_id):
 
 @task_bp.route('/<task_id>/status', methods=['PUT'])
 def update_task_status(task_id):
+    """
+    更新任务状态API
+    
+    根据任务ID更新任务状态
+    
+    Returns:
+        JSON: 更新结果
+    """
     """更新任务状态"""
     data = request.json
     if not data or 'status' not in data:
@@ -92,6 +139,14 @@ def update_task_status(task_id):
 
 @task_bp.route('/<task_id>/pause', methods=['POST'])
 def pause_task(task_id):
+    """
+    暂停任务API
+    
+    根据任务ID暂停任务
+    
+    Returns:
+        JSON: 暂停结果
+    """
     """暂停任务"""
     try:
         logger.info(f"尝试暂停任务: {task_id}")
@@ -107,6 +162,14 @@ def pause_task(task_id):
 
 @task_bp.route('/<task_id>/resume', methods=['POST'])
 def resume_task(task_id):
+    """
+    恢复任务API
+    
+    根据任务ID恢复任务
+    
+    Returns:
+        JSON: 恢复结果
+    """
     """恢复任务"""
     try:
         logger.info(f"尝试恢复任务: {task_id}")
@@ -122,6 +185,14 @@ def resume_task(task_id):
 
 @task_bp.route('/<task_id>/stop', methods=['POST'])
 def stop_task(task_id):
+    """
+    停止任务API
+    
+    根据任务ID停止任务
+    
+    Returns:
+        JSON: 停止结果
+    """
     """停止任务"""
     try:
         logger.info(f"尝试停止任务: {task_id}")
@@ -137,6 +208,14 @@ def stop_task(task_id):
 
 @task_bp.route('/<task_id>/refresh', methods=['POST'])
 def refresh_task(task_id):
+    """
+    刷新任务状态API
+    
+    根据任务ID刷新任务状态和进度信息
+    
+    Returns:
+        JSON: 刷新结果
+    """
     """刷新任务状态和进度信息"""
     try:
         logger.info(f"刷新任务状态: {task_id}")
@@ -163,6 +242,14 @@ def refresh_task(task_id):
 
 @task_bp.route('/<task_id>', methods=['DELETE'])
 def delete_task(task_id):
+    """
+    删除任务API
+    
+    根据任务ID删除任务
+    
+    Returns:
+        JSON: 删除结果
+    """
     """删除任务"""
     success = task_service.delete_task(task_id)
     if not success:

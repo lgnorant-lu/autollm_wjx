@@ -1,3 +1,17 @@
+"""
+----------------------------------------------------------------
+File name:                  survey_routes.py
+Author:                     Ignorant-lu
+Date created:               2025/03/05
+Description:                问卷相关路由模块，提供问卷解析和管理的API接口
+----------------------------------------------------------------
+
+Changed history:            问卷路由模块初始版本
+                            2025/03/05: 增加详细的错误处理和日志记录
+                            2025/03/05: 优化API响应格式
+----------------------------------------------------------------
+"""
+
 from flask import Blueprint, request, jsonify
 from services.survey_service import SurveyService
 import logging
@@ -9,6 +23,14 @@ survey_service = SurveyService()
 
 @survey_bp.route('/parse', methods=['POST'])
 def parse_survey():
+    """
+    解析问卷API
+    
+    接收问卷URL，解析问卷结构并保存
+    
+    Returns:
+        JSON: 解析结果，包含问卷ID和基本信息
+    """
     """解析问卷"""
     try:
         logger.info("请求解析问卷")
@@ -34,6 +56,14 @@ def parse_survey():
 
 @survey_bp.route('', methods=['GET'])
 def get_all_surveys():
+    """
+    获取所有问卷API
+    
+    返回所有已保存的问卷列表
+    
+    Returns:
+        JSON: 问卷列表
+    """
     """获取所有问卷"""
     try:
         logger.info("请求获取所有问卷")
@@ -46,6 +76,17 @@ def get_all_surveys():
 
 @survey_bp.route('/<survey_id>', methods=['GET'])
 def get_survey(survey_id):
+    """
+    获取指定问卷详情API
+    
+    根据问卷ID返回问卷详情
+    
+    Args:
+        survey_id (str): 问卷ID
+    
+    Returns:
+        JSON: 问卷详情
+    """
     """获取指定问卷详情"""
     try:
         logger.info(f"请求获取问卷 {survey_id} 详情")
@@ -61,6 +102,17 @@ def get_survey(survey_id):
 
 @survey_bp.route('/<survey_id>', methods=['DELETE'])
 def delete_survey(survey_id):
+    """
+    删除问卷API
+    
+    根据问卷ID删除问卷
+    
+    Args:
+        survey_id (str): 问卷ID
+    
+    Returns:
+        JSON: 删除结果
+    """
     """删除问卷"""
     try:
         logger.info(f"请求删除问卷 {survey_id}")

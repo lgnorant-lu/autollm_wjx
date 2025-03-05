@@ -1,3 +1,16 @@
+"""
+----------------------------------------------------------------
+File name:                  app.py
+Author:                     Ignorant-lu
+Date created:               2025/03/05
+Description:                Flask应用主入口文件，负责初始化应用配置和路由注册
+----------------------------------------------------------------
+
+Changed history:            初始化Flask应用主入口
+                            2025/03/05: 添加日志配置，注册API蓝图，初始化目录结构
+----------------------------------------------------------------
+"""
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 import os
@@ -50,6 +63,12 @@ app.register_blueprint(config_bp, url_prefix='/api/config')
 
 @app.route('/')
 def index():
+    """
+    API根路径，返回服务状态信息
+    
+    Returns:
+        JSON: 包含API名称、版本和状态的JSON响应
+    """
     return jsonify({
         "name": "问卷星自动化系统API",
         "version": "1.0.0",
