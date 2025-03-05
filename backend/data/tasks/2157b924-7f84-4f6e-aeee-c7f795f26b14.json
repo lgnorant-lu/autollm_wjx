@@ -1,0 +1,14 @@
+{
+  "id": "2157b924-7f84-4f6e-aeee-c7f795f26b14",
+  "survey_id": "wWwct2F",
+  "count": 1,
+  "created_at": "20250303_145356",
+  "status": "completed",
+  "progress": 100,
+  "success_count": 1,
+  "fail_count": 0,
+  "use_proxy": false,
+  "proxy_url": "",
+  "message": "完成: 成功1次, 失败0次",
+  "updated_at": "2025-03-03 14:54:03"
+}

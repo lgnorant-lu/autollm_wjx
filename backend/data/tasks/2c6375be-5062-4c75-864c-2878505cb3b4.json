@@ -1,0 +1,14 @@
+{
+  "id": "2c6375be-5062-4c75-864c-2878505cb3b4",
+  "survey_id": "YRbwcSM",
+  "count": 1,
+  "created_at": "20250303_145807",
+  "status": "completed",
+  "progress": 100,
+  "success_count": 1,
+  "fail_count": 0,
+  "use_proxy": false,
+  "proxy_url": "",
+  "message": "完成: 成功1次, 失败0次",
+  "updated_at": "2025-03-03 14:58:14"
+}

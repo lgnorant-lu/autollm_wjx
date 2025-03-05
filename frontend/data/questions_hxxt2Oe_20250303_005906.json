@@ -1,0 +1,248 @@
+{
+    "id": "hxxt2Oe",
+    "title": "问卷调查",
+    "url": "https://www.wjx.cn/vm/hxxt2Oe.aspx",
+    "timestamp": "20250303_005906",
+    "questions": [
+        {
+            "index": 1,
+            "type": 3,
+            "title": "1. 单选题single",
+            "title_index": -1,
+            "options": [
+                "选项1",
+                "选项2",
+                "选项3"
+            ],
+            "ratio": [
+                1,
+                1,
+                1
+            ],
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        },
+        {
+            "index": 2,
+            "type": 4,
+            "title": "2.多选题multiple【多选题】",
+            "title_index": -1,
+            "options": [
+                "选项4",
+                "选项5",
+                "选项6"
+            ],
+            "ratio": [
+                1,
+                1,
+                1
+            ],
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        },
+        {
+            "index": 3,
+            "type": 1,
+            "title": "3.填空题vacant",
+            "title_index": -1,
+            "options": null,
+            "ratio": null,
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        },
+        {
+            "index": 4,
+            "type": 6,
+            "title": "4矩阵题matrix",
+            "title_index": -1,
+            "options": [
+                [
+                    "很不满意",
+                    "不满意",
+                    "一般",
+                    "满意",
+                    "很满意"
+                ],
+                [
+                    "很不满意",
+                    "不满意",
+                    "一般",
+                    "满意",
+                    "很满意"
+                ],
+                [
+                    "很不满意",
+                    "不满意",
+                    "一般",
+                    "满意",
+                    "很满意"
+                ],
+                [
+                    "很不满意",
+                    "不满意",
+                    "一般",
+                    "满意",
+                    "很满意"
+                ]
+            ],
+            "ratio": [
+                [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                ],
+                [
+                    1,
+                    1,
+                    1,
+                    1,
+                    1
+                ]
+            ],
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        },
+        {
+            "index": 5,
+            "type": 5,
+            "title": "5量表题scale",
+            "title_index": -1,
+            "options": null,
+            "ratio": null,
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        },
+        {
+            "index": 6,
+            "type": 5,
+            "title": "6量表题scale",
+            "title_index": -1,
+            "options": null,
+            "ratio": null,
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        },
+        {
+            "index": 7,
+            "type": 8,
+            "title": "7滑块题slider",
+            "title_index": -1,
+            "options": null,
+            "ratio": null,
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        },
+        {
+            "index": 8,
+            "type": 3,
+            "title": "8单选题：影响第9题",
+            "title_index": -1,
+            "options": [
+                "有第9题",
+                "无第9题"
+            ],
+            "ratio": [
+                1,
+                1
+            ],
+            "is_hidden": false,
+            "relation": null,
+            "jumps": [
+                [
+                    10,
+                    2
+                ]
+            ]
+        },
+        {
+            "index": 9,
+            "type": 3,
+            "title": "9跳题逻辑",
+            "title_index": -1,
+            "options": [
+                "选项31",
+                "选项32"
+            ],
+            "ratio": [
+                1,
+                1
+            ],
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        },
+        {
+            "index": 10,
+            "type": 3,
+            "title": "*第10题",
+            "title_index": -1,
+            "options": [
+                "1",
+                "2"
+            ],
+            "ratio": [
+                1,
+                1
+            ],
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        },
+        {
+            "index": 11,
+            "type": 11,
+            "title": "13排序题reorder(这是第11题，即使我题号写的13)【排序题】",
+            "title_index": -1,
+            "options": null,
+            "ratio": null,
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        },
+        {
+            "index": 12,
+            "type": 1,
+            "title": "12题：省份城市与地区（题型脚本开发中）",
+            "title_index": -1,
+            "options": null,
+            "ratio": null,
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        },
+        {
+            "index": 13,
+            "type": 9,
+            "title": "姓名：年龄：岁电话：",
+            "title_index": -1,
+            "options": null,
+            "ratio": null,
+            "is_hidden": false,
+            "relation": null,
+            "jumps": null
+        }
+    ]
+}

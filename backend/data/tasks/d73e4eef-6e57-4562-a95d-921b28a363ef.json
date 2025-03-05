@@ -1,0 +1,18 @@
+{
+  "id": "d73e4eef-6e57-4562-a95d-921b28a363ef",
+  "survey_id": "wWwct2F",
+  "count": 3,
+  "created_at": "2025-03-05 03:58:49",
+  "updated_at": "2025-03-05 03:59:08",
+  "status": "completed",
+  "progress": 100,
+  "success_count": 3,
+  "fail_count": 0,
+  "completed_count": 3,
+  "total_count": 3,
+  "use_proxy": false,
+  "proxy_url": "",
+  "use_llm": false,
+  "llm_type": "aliyun",
+  "message": "完成: 成功3次, 失败0次"
+}
