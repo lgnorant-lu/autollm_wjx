@@ -32,8 +32,8 @@
 
 1. 克隆仓库
 ```bash
-git clone https://github.com/yourusername/wjx-automation.git
-cd wjx-automation
+git clone https://github.com/lgnorant-lu/autollm_wjx.git
+cd autollm_wjx
 ```
 
 2. 安装后端依赖
