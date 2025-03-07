@@ -1,4 +1,4 @@
-version: '3'
+#version: '3'  # 新版本Docker Compose(v2+) 已废弃 version 字段
 
 services:
   backend:

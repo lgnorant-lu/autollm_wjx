@@ -12,3 +12,6 @@ numpy==2.0.0
 tqdm==4.67.1
 loguru==0.7.3
 waitress==3.0.2
+gunicorn==21.2.0
+selenium==4.15.2
+

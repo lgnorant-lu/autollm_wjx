@@ -1,12 +1,20 @@
-FROM python:3.9-slim
+# 基础镜像（区分开发与生产）
+ARG ENV_MODE=production
+FROM python:3.9-slim AS base
 
+# 开发阶段
+FROM base AS development
 WORKDIR /app
-
-COPY backend/ /app/
-COPY requirements.txt /app/
-
+COPY ./backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+COPY ./backend .
+# 启动开发服务器（Flask debug）
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000", "--reload"]
 
-EXPOSE 5000
-
-CMD ["python", "app.py"]
+# 生产阶段
+FROM base AS production
+WORKDIR /app
+COPY ./backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY ./backend .
+CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5000", "--workers=4"]

@@ -17,18 +17,74 @@
 ## 系统架构
 
 项目采用前后端分离架构：
-- 前端：Vue.js + Element Plus
-- 后端：Flask RESTful API
+- 前端：Vue.js 3.x + Vite + Element Plus
+- 后端：Flask RESTful API + Gunicorn
 - 数据存储：文件系统 (JSON)
 
 ## 快速开始
 
 ### 环境要求
-- Python 3.8+
-- Node.js 14+
-- npm 6+
+- Python 3.9+
+- Node.js 16+
+- npm 7+
+- Docker (可选，推荐)
 
-### 安装步骤
+### 方法一：使用Docker部署（推荐）
+
+#### Windows环境下的Docker安装
+
+1. **安装Docker Desktop**
+   - 下载: [Docker Desktop官网](https://www.docker.com/products/docker-desktop)
+   - 安装时确保启用WSL2或Hyper-V
+   - 安装后重启电脑
+
+2. **无Docker Desktop的情况**
+   - 安装Docker CLI和Docker Compose：
+     ```bash
+     # 使用Chocolatey安装
+     choco install docker-cli docker-compose
+     
+     # 或使用Scoop安装
+     scoop install docker docker-compose
+     ```
+   - 配置Docker引擎连接（需要远程Docker服务器）
+
+#### 项目部署
+
+```bash
+# 克隆仓库
+git clone https://github.com/lgnorant-lu/autollm_wjx.git
+cd autollm_wjx
+
+# 启动开发环境
+docker compose -f docker-compose.yml -f docker-compose.override.yml up -d
+
+# 或仅启动生产环境
+docker compose up -d
+```
+
+#### 验证部署
+
+- 前端访问: http://localhost:80
+- 后端API: http://localhost:5000
+
+#### Docker常用命令
+
+```bash
+# 查看容器状态
+docker ps
+
+# 查看日志
+docker compose logs -f
+
+# 停止服务
+docker compose down
+
+# 重建镜像
+docker compose build
+```
+
+### 方法二：本地开发环境部署
 
 1. 克隆仓库
 ```bash
@@ -36,35 +92,33 @@ git clone https://github.com/lgnorant-lu/autollm_wjx.git
 cd autollm_wjx
 ```
 
-2. 安装后端依赖
+2. 后端部署
 ```bash
+# 创建并激活虚拟环境
+python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Linux/Mac
+
+# 安装依赖
 pip install -r requirements.txt
+
+# 启动开发服务器
+cd backend
+flask run --host=0.0.0.0 --port=5000
+
+# 或生产环境启动
+gunicorn app:app -b 0.0.0.0:5000 --workers=4
 ```
 
-3. 安装前端依赖
+3. 前端部署
 ```bash
 cd frontend
 npm install
-```
-
-4. 启动后端服务
-```bash
-cd backend
-python app.py
-```
-
-5. 启动前端开发服务器
-```bash
-cd frontend
 npm run dev
-```
 
-### Docker部署
-
-使用Docker Compose快速部署整个应用：
-
-```bash
-docker-compose up -d
+# 生产环境构建
+npm run build
+# 然后将dist目录部署到Web服务器
 ```
 
 ## 主要功能
@@ -92,18 +146,21 @@ docker-compose up -d
 - Vue Router
 - Axios
 - ECharts
+- Vite构建工具
 
 ### 后端
 - Flask
+- Gunicorn (生产环境)
 - BeautifulSoup4
 - Requests
 - APScheduler
-- 多线程处理
+- Pandas & NumPy
+- Selenium (浏览器自动化)
 
 ## 项目结构
 
 ```
-wjx-automation/
+autollm_wjx/
 ├── backend/                # 后端代码
 │   ├── core/               # 核心功能
 │   │   ├── parser.py       # 问卷解析
@@ -111,6 +168,8 @@ wjx-automation/
 │   │   └── submitter.py    # 提交引擎
 │   ├── routes/             # API路由
 │   ├── services/           # 业务服务
+│   ├── data/               # 数据存储
+│   ├── logs/               # 日志目录
 │   └── app.py              # 应用入口
 │
 ├── frontend/               # 前端代码
@@ -119,13 +178,47 @@ wjx-automation/
 │   │   ├── components/     # 组件
 │   │   ├── views/          # 页面
 │   │   └── App.vue         # 根组件
+│   ├── public/             # 静态资源
 │   ├── package.json        # 依赖配置
 │   └── vite.config.js      # 构建配置
 │
-├── docker-compose.yml      # Docker配置
-├── requirements.txt        # Python依赖
-└── README.md               # 项目文档
+├── docker-compose.yml          # Docker生产配置
+├── docker-compose.override.yml # Docker开发配置
+├── Dockerfile.backend          # 后端Docker构建文件
+├── Dockerfile.frontend         # 前端Docker构建文件
+├── .dockerignore               # Docker忽略文件
+├── requirements.txt            # Python依赖
+└── README.md                   # 项目文档
 ```
+
+## 故障排除
+
+### 常见问题解决
+
+1. **端口占用**
+   ```bash
+   # Windows查看端口占用
+   netstat -ano | findstr 5000
+   netstat -ano | findstr 80
+
+   # 结束进程
+   taskkill /F /PID <进程ID>
+   ```
+
+2. **Docker相关问题**
+   - 容器无法启动: `docker logs <容器ID>` 查看详细错误
+   - 网络问题: 检查 `docker network ls` 和防火墙设置
+   - 卷挂载问题: 确认路径和权限正确
+
+3. **前后端连接问题**
+   - 检查CORS设置
+   - 验证API地址配置
+   - 确认网络连接和防火墙设置
+
+4. **依赖安装失败**
+   - 更新pip和npm: `pip install --upgrade pip` / `npm update -g`
+   - 检查网络连接和代理设置
+   - 尝试使用镜像源: `pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple`
 
 ## 注意事项
 
