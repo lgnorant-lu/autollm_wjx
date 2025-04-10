@@ -1,0 +1,211 @@
+{
+  "id": "wWwct2F",
+  "url": "https://www.wjx.cn/vm/wWwct2F.aspx",
+  "title": "大学生恋爱观调查",
+  "created_at": "20250328_142737",
+  "questions": [
+    {
+      "index": 1,
+      "type": 3,
+      "title": "*你的年级是：",
+      "is_hidden": false,
+      "options": [
+        "大一",
+        "大二",
+        "大三",
+        "大四"
+      ]
+    },
+    {
+      "index": 2,
+      "type": 3,
+      "title": "*你的性别是：",
+      "is_hidden": false,
+      "options": [
+        "男",
+        "女"
+      ]
+    },
+    {
+      "index": 3,
+      "type": 1,
+      "title": "*你每个月的生活费用是多少元？",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 4,
+      "type": 1,
+      "title": "*你的生活费用来源是？",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 5,
+      "type": 3,
+      "title": "*你现在的感情状况是？",
+      "is_hidden": false,
+      "options": [
+        "正在恋爱",
+        "单身",
+        "刚失恋",
+        "有正在追求的对象"
+      ]
+    },
+    {
+      "index": 6,
+      "type": 1,
+      "title": "*你曾经或现在的恋爱时长是多长时间？（X日/X个月/X年）",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 7,
+      "type": 1,
+      "title": "*恋爱时的每月花费是多少元？",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 8,
+      "type": 4,
+      "title": "*你恋爱时通常会消费在哪些方面？【最少选择2项】",
+      "is_hidden": false,
+      "options": [
+        "购物",
+        "饮食",
+        "娱乐",
+        "旅游",
+        "交通",
+        "通讯",
+        "礼物",
+        "其他"
+      ]
+    },
+    {
+      "index": 9,
+      "type": 3,
+      "title": "*你的父母会给你一定的恋爱花销费用吗？",
+      "is_hidden": false,
+      "options": [
+        "是",
+        "否"
+      ]
+    },
+    {
+      "index": 10,
+      "type": 3,
+      "title": "*你觉得自己会因为恋爱消费而导致生活紧张吗？",
+      "is_hidden": false,
+      "options": [
+        "会经常导致生活紧张",
+        "不会导致生活紧张",
+        "有时会导致生活紧张"
+      ]
+    },
+    {
+      "index": 11,
+      "type": 3,
+      "title": "*你认为金钱会影响恋人之间的关系吗？",
+      "is_hidden": false,
+      "options": [
+        "不会有影响",
+        "会有很大影响",
+        "多少有点影响"
+      ]
+    },
+    {
+      "index": 12,
+      "type": 3,
+      "title": "*你觉得恋爱中AA制消费怎么样？",
+      "is_hidden": false,
+      "options": [
+        "显得太生疏、伤感情",
+        "有利于维持感情",
+        "没多大影响",
+        "其他"
+      ]
+    },
+    {
+      "index": 13,
+      "type": 3,
+      "title": "*你认为以下哪种说法更符合你的恋爱消费观？",
+      "is_hidden": false,
+      "options": [
+        "恋爱时多花点钱没有关系",
+        "恋爱应坚持勤俭节约",
+        "双方都应量力而为，不给对方太大压力",
+        "其他"
+      ]
+    },
+    {
+      "index": 14,
+      "type": 4,
+      "title": "*你觉得选择恋爱对象的影响因素是什么？【最少选择2项】",
+      "is_hidden": false,
+      "options": [
+        "外貌",
+        "性格",
+        "身高",
+        "经济条件好",
+        "地理位置",
+        "工作能力和未来潜力",
+        "感觉/眼缘",
+        "家庭背景好",
+        "学历学识",
+        "其他"
+      ]
+    },
+    {
+      "index": 15,
+      "type": 3,
+      "title": "*你觉得哪个地区进行恋爱合适？",
+      "is_hidden": false,
+      "options": [
+        "本地",
+        "异地",
+        "网络"
+      ]
+    },
+    {
+      "index": 16,
+      "type": 1,
+      "title": "*根据第15题，选择该地区的原因是？",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 17,
+      "type": 1,
+      "title": "*你对另一半的身高要求具体是多少m？（数值）",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 18,
+      "type": 1,
+      "title": "*你能接受另一半的恋爱次数最多是多少次？（数值）",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 19,
+      "type": 1,
+      "title": "*你认为大学期间情侣每天在一起多长时间合适？（X个小时）",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 20,
+      "type": 3,
+      "title": "*你觉得恋爱与婚姻有什么关系？",
+      "is_hidden": false,
+      "options": [
+        "恋爱应该以结婚为目的",
+        "恋爱不一定要结婚",
+        "恋爱只是游戏",
+        "其他"
+      ]
+    }
+  ]
+}

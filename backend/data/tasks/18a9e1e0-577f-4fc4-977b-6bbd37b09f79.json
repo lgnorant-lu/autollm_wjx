@@ -1,0 +1,14 @@
+{
+  "id": "18a9e1e0-577f-4fc4-977b-6bbd37b09f79",
+  "survey_id": "wWwct2F",
+  "count": 1,
+  "created_at": "20250303_141240",
+  "status": "completed",
+  "progress": 100,
+  "success_count": 1,
+  "fail_count": 0,
+  "use_proxy": true,
+  "proxy_url": "https://service.ipzan.com/core-extract?num=1&no=20250216408295864496&minute=1&format=txt&protocol=1&pool=quality&mode=whitelist&secret=v5eomjhvanppt08",
+  "message": "完成: 成功1次, 失败0次",
+  "updated_at": "2025-03-03 14:12:53"
+}

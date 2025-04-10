@@ -1,0 +1,18 @@
+{
+  "id": "c03d68b7-d686-4926-b9cf-8997a64f48e0",
+  "survey_id": "OKmg7fv",
+  "count": 10,
+  "created_at": "2025-03-05 02:36:00",
+  "updated_at": "2025-03-05 02:36:00",
+  "status": "pending",
+  "progress": 0,
+  "success_count": 0,
+  "fail_count": 0,
+  "completed_count": 0,
+  "total_count": 10,
+  "use_proxy": false,
+  "proxy_url": "",
+  "use_llm": false,
+  "llm_type": "aliyun",
+  "message": "任务创建成功，等待执行"
+}

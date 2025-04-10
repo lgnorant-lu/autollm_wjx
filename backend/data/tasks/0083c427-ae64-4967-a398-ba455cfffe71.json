@@ -1,0 +1,16 @@
+{
+  "id": "0083c427-ae64-4967-a398-ba455cfffe71",
+  "survey_id": "YRbwcSM",
+  "count": 2,
+  "created_at": "20250303_190404",
+  "status": "completed",
+  "progress": 100,
+  "success_count": 2,
+  "fail_count": 0,
+  "use_proxy": false,
+  "proxy_url": "",
+  "use_llm": true,
+  "llm_type": "aliyun",
+  "message": "完成: 成功2次, 失败0次",
+  "updated_at": "2025-03-03 19:04:16"
+}

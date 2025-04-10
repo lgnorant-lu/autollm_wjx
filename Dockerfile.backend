@@ -1,0 +1,56 @@
+# 基础镜像（区分开发与生产）
+ARG ENV_MODE=production
+FROM python:3.9-slim AS base
+
+# 设置工作目录
+WORKDIR /app
+
+# 设置Python环境变量
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=off \
+    PIP_DISABLE_PIP_VERSION_CHECK=on
+
+# 安装系统依赖
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# 开发阶段
+FROM base AS development
+# 拷贝依赖文件
+COPY ./backend/requirements/ /app/backend/requirements/
+COPY ./backend/requirements.txt /app/backend/
+RUN pip install --no-cache-dir -r backend/requirements.txt \
+    && pip install --no-cache-dir -r backend/requirements/requirements-dev.txt
+COPY ./backend .
+# 启动开发服务器（Flask debug）
+CMD ["flask", "run", "--host=0.0.0.0", "--port=5000", "--reload"]
+
+# 生产阶段
+FROM base AS production
+# 添加非root用户以提高安全性
+RUN groupadd -r wjxuser && useradd -r -g wjxuser wjxuser
+
+# 拷贝依赖文件
+COPY ./backend/requirements/ /app/backend/requirements/
+COPY ./backend/requirements.txt /app/backend/
+RUN pip install --no-cache-dir -r backend/requirements.txt
+
+# 拷贝应用代码
+COPY ./backend .
+
+# 创建必要的数据和日志目录
+RUN mkdir -p /app/data /app/logs && \
+    chown -R wjxuser:wjxuser /app
+
+# 切换到非root用户
+USER wjxuser
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:5000/ || exit 1
+
+# 使用gunicorn启动应用（优化worker配置）
+CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5000", "--workers=4", "--worker-class=gthread", "--threads=2", "--timeout=60", "--access-logfile=-", "--error-logfile=-"]

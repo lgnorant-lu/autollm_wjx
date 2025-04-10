@@ -1,0 +1,27 @@
+#version: '3'
+
+services:
+  backend:
+    build:
+      args:
+        # 开发环境专用参数
+        ENV_MODE: development
+    environment:
+      - FLASK_ENV=development  # 开启Flask调试模式
+      - DEBUG=True
+    volumes:
+      # 绑定代码目录，实现热更新（容器内代码实时同步本地）
+      - ./backend:/app
+
+  frontend:
+    build:
+      args:
+        ENV_MODE: development
+    volumes:
+      # 前端代码热更新（如React/Vue）
+      - ./frontend:/app
+      # 排除 node_modules 避免覆盖容器内依赖
+      - /app/node_modules
+    ports:
+      - "80:80"
+      - "5173:5173"

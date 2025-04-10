@@ -1,0 +1,46 @@
+ARG ENV_MODE=production
+FROM node:16-alpine AS base
+
+# 设置工作目录
+WORKDIR /app
+
+# 开发阶段
+FROM base AS development
+COPY ./frontend/package*.json ./
+RUN npm install
+COPY ./frontend .
+# 暴露开发端口
+EXPOSE 5173
+CMD ["npm", "run", "dev", "--", "--host"]  # 启用所有网络接口访问
+
+# 构建阶段
+FROM base AS build
+WORKDIR /app
+COPY ./frontend/package*.json ./
+# 使用生产环境依赖安装
+RUN npm install --production
+COPY ./frontend .
+# 构建应用
+RUN npm run build
+
+# 生产阶段 - 使用Nginx服务静态文件
+FROM nginx:stable-alpine AS production
+# 复制自定义Nginx配置
+COPY ./frontend/nginx/default.conf /etc/nginx/conf.d/default.conf
+# 复制构建结果
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# 添加运行时配置脚本（可以在启动时调整API地址）
+COPY ./frontend/scripts/docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# 添加健康检查
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD wget -q -O /dev/null http://localhost:80/ || exit 1
+
+# 暴露端口
+EXPOSE 80
+
+# 设置入口点脚本，允许在启动时自定义配置
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]

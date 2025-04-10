@@ -1,0 +1,16 @@
+{
+  "id": "20251a38-0377-4e34-8a95-ad9446362daf",
+  "survey_id": "wWwct2F",
+  "count": 10,
+  "created_at": "20250305_015955",
+  "status": "completed",
+  "progress": 100,
+  "success_count": 10,
+  "fail_count": 0,
+  "use_proxy": false,
+  "proxy_url": "",
+  "use_llm": false,
+  "llm_type": "aliyun",
+  "message": "完成: 成功10次, 失败0次",
+  "updated_at": "2025-03-05 02:00:50"
+}

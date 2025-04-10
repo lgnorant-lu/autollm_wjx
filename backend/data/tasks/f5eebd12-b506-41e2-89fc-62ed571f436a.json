@@ -1,0 +1,17 @@
+{
+  "id": "f5eebd12-b506-41e2-89fc-62ed571f436a",
+  "survey_id": "17141631",
+  "survey_title": "问卷调查",
+  "count": 2,
+  "concurrent": 1,
+  "use_proxy": false,
+  "proxy_url": "",
+  "use_llm": false,
+  "status": "completed",
+  "progress": 100,
+  "success_count": 2,
+  "fail_count": 0,
+  "created_at": "2025-03-03 13:16:30",
+  "updated_at": "2025-03-03 13:16:37",
+  "message": ""
+}

@@ -1,0 +1,11 @@
+﻿# 问卷星自动化系统依赖文件
+# 默认安装生产环境所需依赖
+
+# 生产环境使用此配置
+-r requirements/requirements-prod.txt
+
+# 取消以下注释以安装开发依赖
+# -r requirements/requirements-dev.txt
+
+# 取消以下注释以安装文档生成依赖
+# -r requirements/requirements-docs.txt 

@@ -1,0 +1,17 @@
+Flask==2.1.1
+flask-cors==5.0.1
+requests==2.30.0
+beautifulsoup4==4.12.3
+APScheduler==3.10.0
+python-dotenv==1.0.1
+lxml==4.9.2
+Werkzeug==2.1.0
+Jinja2==3.1.4
+pandas==2.2.3
+numpy==2.0.0
+tqdm==4.67.1
+loguru==0.7.3
+waitress==3.0.2
+gunicorn==21.2.0
+selenium==4.15.2
+

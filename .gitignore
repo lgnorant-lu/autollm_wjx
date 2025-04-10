@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+
+# Node dependencies
+frontend/node_modules/
+frontend/.npm
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.pnpm-debug.log*
+
+# Vue build output
+frontend/dist/
+
+# Data and runtime files
+data/*.json
+data/archive/*.json
+backend/data/tasks/*/
+backend/data/surveys/*.json
+backend/data/ip_usage.json
+backend/data/stats.json
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+Thumbs.db
