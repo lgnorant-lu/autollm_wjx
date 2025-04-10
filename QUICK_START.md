@@ -32,46 +32,63 @@
 
 ### 选项B: 本地直接运行（适合开发者或不想使用Docker的用户）
 
-#### 1. 安装必要的软件
+#### 方式1: 使用一键式脚本（推荐）
 
-- 安装 [Python 3.9+](https://www.python.org/downloads/)
-- 安装 [Node.js 16+](https://nodejs.org/)
+1. 安装必要的软件：
+   - [Python 3.9+](https://www.python.org/downloads/)
+   - [Node.js 16+](https://nodejs.org/)
 
-#### 2. 设置环境
+2. 在项目根目录下，双击运行`setup_local.bat`脚本
 
-1. 在项目根目录下，运行以下命令创建虚拟环境：
-   ```
-   python -m venv venv
-   .\venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
+3. 按照屏幕提示操作，脚本将自动：
+   - 检查系统环境
+   - 创建Python虚拟环境
+   - 安装后端和前端依赖
+   - 配置环境变量
+   - 启动应用服务
 
-2. 设置前端环境：
-   ```
-   cd frontend
-   npm install
-   cd ..
-   ```
+#### 方式2: 手动设置
 
-3. 复制环境变量文件：
-   ```
-   copy .env.example .env
-   ```
+1. 安装必要的软件
 
-#### 3. 启动应用
+   - 安装 [Python 3.9+](https://www.python.org/downloads/)
+   - 安装 [Node.js 16+](https://nodejs.org/)
 
-1. 启动后端：
-   ```
-   .\venv\Scripts\activate
-   cd backend
-   python app.py
-   ```
+2. 设置环境
 
-2. 在新的命令行窗口中启动前端：
-   ```
-   cd frontend
-   npm run serve
-   ```
+   1. 在项目根目录下，运行以下命令创建虚拟环境：
+      ```
+      python -m venv venv
+      .\venv\Scripts\activate
+      pip install -r requirements.txt
+      ```
+
+   2. 设置前端环境：
+      ```
+      cd frontend
+      npm install
+      cd ..
+      ```
+
+   3. 复制环境变量文件：
+      ```
+      copy .env.example .env
+      ```
+
+3. 启动应用
+
+   1. 启动后端：
+      ```
+      .\venv\Scripts\activate
+      cd backend
+      python app.py
+      ```
+
+   2. 在新的命令行窗口中启动前端：
+      ```
+      cd frontend
+      npm run serve
+      ```
 
 ## 三、访问应用
 

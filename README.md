@@ -55,7 +55,15 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 5. 访问 `http://localhost:80` (或配置的其他端口) 打开系统界面
 
-### 方式三: 手动部署
+### 方式三: 本地直接运行（无需Docker）
+
+1. 确保已安装 [Python 3.9+](https://www.python.org/downloads/) 和 [Node.js 16+](https://nodejs.org/)
+2. 下载此项目到本地
+3. 双击运行 `setup_local.bat` 文件
+4. 按照提示完成安装和配置
+5. 访问 `http://localhost:8080` 打开系统前端界面
+
+### 方式四: 手动部署
 
 1. 确保已安装 [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/)
 2. 复制 `.env.example` 为 `.env` 并编辑配置
