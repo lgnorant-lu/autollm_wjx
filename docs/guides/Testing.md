@@ -1,6 +1,17 @@
 # 测试指南
 
+[返回主页](../../README.md) | [快速入门](../../QUICK_START.md) | [部署指南](Deployment.md) | [开发指南](Development.md)
+
 本文档提供问卷星自动化系统的测试策略和具体实施方法。
+
+## 目录
+
+- [1. 测试策略概述](#1-测试策略概述)
+- [2. 单元测试](#2-单元测试)
+- [3. 集成测试](#3-集成测试)
+- [4. 系统测试](#4-系统测试)
+- [5. 性能测试](#5-性能测试)
+- [6. 安全测试](#6-安全测试)
 
 ## 1. 测试策略概述
 
@@ -55,7 +66,7 @@ def test_parse_survey():
     html_content = load_test_data("sample_survey.html")
     parser = SurveyParser()
     survey = parser.parse(html_content)
-    
+
     assert survey is not None
     assert survey["title"] == "测试问卷"
     assert len(survey["questions"]) == 5
@@ -145,7 +156,7 @@ def test_survey_parse_api(client):
     response = client.post('/api/v1/surveys', json={
         'url': 'https://www.wjx.cn/vm/sample.aspx'
     })
-    
+
     assert response.status_code == 200
     data = response.get_json()
     assert data['status'] == 'success'
@@ -209,22 +220,22 @@ describe('Survey Submission', () => {
     cy.get('#username').type('testuser')
     cy.get('#password').type('password')
     cy.get('button[type="submit"]').click()
-    
+
     // 访问问卷页面
     cy.get('a[href="/surveys"]').click()
-    
+
     // 创建新任务
     cy.get('.create-task-btn').click()
     cy.get('#survey-url').type('https://www.wjx.cn/vm/sample.aspx')
     cy.get('#parse-btn').click()
-    
+
     // 确认问卷已解析
     cy.get('.survey-title', { timeout: 10000 }).should('be.visible')
-    
+
     // 设置任务参数
     cy.get('#submission-count').type('5')
     cy.get('#submit-task-btn').click()
-    
+
     // 验证任务创建成功
     cy.get('.task-success-message').should('be.visible')
     cy.url().should('include', '/tasks/')
@@ -262,11 +273,11 @@ from locust import HttpUser, task, between
 
 class WebsiteUser(HttpUser):
     wait_time = between(1, 3)
-    
+
     @task
     def view_surveys(self):
         self.client.get("/api/v1/surveys")
-    
+
     @task(2)
     def parse_survey(self):
         self.client.post("/api/v1/surveys", json={
@@ -377,4 +388,15 @@ pytest --html=report.html
 
 ### 10.2 测试数据存储
 
-测试数据存储在`backend/tests/data`和`frontend/tests/data`目录下。 
+测试数据存储在`backend/tests/data`和`frontend/tests/data`目录下。
+
+---
+
+## 相关文档
+
+- [部署指南](Deployment.md) - 如何部署系统
+- [开发指南](Development.md) - 如何进行开发
+- [用户指南](User.md) - 系统使用说明
+- [架构设计](../design/Architecture.md) - 系统架构设计
+
+[返回顶部](#测试指南) | [返回主页](../../README.md) | [快速入门](../../QUICK_START.md)

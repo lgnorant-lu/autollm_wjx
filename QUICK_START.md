@@ -1,5 +1,7 @@
 # 问卷星自动化系统快速入门指南
 
+[返回主页](README.md) | [部署指南](docs/guides/Deployment.md) | [用户指南](docs/guides/User.md)
+
 本指南提供了问卷星自动化系统的快速部署和使用说明，适合各种类型的用户。
 
 ## 一、系统要求
@@ -153,12 +155,27 @@
 ## 六、获取帮助
 
 如需更详细的部署和使用说明，请参考：
-- 完整部署文档: [docs/guides/Deployment.md](docs/guides/Deployment.md)
-- 用户指南: [docs/guides/User.md](docs/guides/User.md)
-- 中文技术文档: [docs/zh/README.md](docs/zh/README.md)
+
+### 指南文档
+- [完整部署文档](docs/guides/Deployment.md) - 详细的部署步骤和选项
+- [用户指南](docs/guides/User.md) - 系统功能和操作说明
+- [开发指南](docs/guides/Development.md) - 二次开发相关信息
+- [测试指南](docs/guides/Testing.md) - 如何进行测试
+
+### 技术文档
+- [中文技术文档目录](docs/zh/README.md) - 中文技术文档入口
+- [架构设计文档](docs/design/Architecture.md) - 系统架构设计
+- [数据库设计文档](docs/design/Database.md) - 数据存储设计
+- [接口设计文档](docs/design/API.md) - API接口设计
+
+### 项目管理
+- [项目结构](docs/project/Structure.md) - 项目文件结构
+- [变更日志](docs/project/Log.md) - 项目变更记录
 
 如有问题，请联系项目维护者或提交Issue。
 
 ---
+
+[返回顶部](#问卷星自动化系统快速入门指南) | [返回主页](README.md)
 
 祝您使用愉快！

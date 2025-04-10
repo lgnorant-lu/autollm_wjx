@@ -2,6 +2,19 @@
 
 一个用于自动创建、提交和管理问卷星调查的系统，支持随机生成答案和使用大语言模型(LLM)生成答案。
 
+## 文档导航
+
+| 文档类别 | 文档链接 | 说明 |
+|------------|------------|------|
+| **快速入门** | [快速入门指南](QUICK_START.md) | 适合新手用户的快速入门指南 |
+| **部署指南** | [部署指南](docs/guides/Deployment.md) | 包含一键式部署、Docker部署和本地直接运行等多种方式 |
+| **开发指南** | [开发指南](docs/guides/Development.md) | 适合开发者的二次开发指南 |
+| **测试指南** | [测试指南](docs/guides/Testing.md) | 说明如何进行单元测试和集成测试 |
+| **用户指南** | [用户指南](docs/guides/User.md) | 说明系统的使用方法 |
+| **设计文档** | [架构设计](docs/design/Architecture.md)<br>[数据库设计](docs/design/Database.md)<br>[接口设计](docs/design/API.md)<br>[安全设计](docs/design/Security.md) | 系统设计相关文档 |
+| **项目管理** | [项目结构](docs/project/Structure.md)<br>[任务进度](docs/project/Thread.md)<br>[变更日志](docs/project/Log.md)<br>[问题跟踪](docs/project/Issues.md)<br>[图表文档](docs/project/Diagram.md) | 项目管理相关文档 |
+| **中文文档** | [中文文档目录](docs/zh/README.md)<br>[业务逻辑文档](docs/zh/问卷星自动化系统业务逻辑文档.md)<br>[后端实现细节](docs/zh/问卷星自动化系统后端实现细节文档.md)<br>[后端架构文档一](docs/zh/问卷星自动化系统后端架构文档_Part1.md)<br>[后端架构文档二](docs/zh/问卷星自动化系统后端架构文档_Part2.md) | 中文技术文档 |
+
 ## 系统特点
 
 - 支持问卷解析与分析
@@ -55,15 +68,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 
 5. 访问 `http://localhost:80` (或配置的其他端口) 打开系统界面
 
-### 方式三: 本地直接运行（无需Docker）
-
-1. 确保已安装 [Python 3.9+](https://www.python.org/downloads/) 和 [Node.js 16+](https://nodejs.org/)
-2. 下载此项目到本地
-3. 双击运行 `setup_local.bat` 文件
-4. 按照提示完成安装和配置
-5. 访问 `http://localhost:8080` 打开系统前端界面
-
-### 方式四: 手动部署
+### 方式三: 手动部署
 
 1. 确保已安装 [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/)
 2. 复制 `.env.example` 为 `.env` 并编辑配置
@@ -314,30 +319,6 @@ docker-compose logs
 .\deploy.ps1 update
 ```
 
-## 文档说明
-
-本项目提供了详细的文档，包括：
-
-### 快速入门
-
-- **QUICK_START.md**: 项目根目录下的快速入门指南，适合新手用户
-
-### 英文文档
-
-- **docs/guides/Deployment.md**: 部署指南，包含一键式部署、Docker部署和本地直接运行等多种方式
-- **docs/guides/Development.md**: 开发指南，适合开发者阅读
-- **docs/guides/Testing.md**: 测试指南，说明如何进行单元测试和集成测试
-- **docs/guides/User.md**: 用户指南，说明系统的使用方法
-
-### 中文文档
-
-中文技术文档已移至`docs/zh/`目录，包括：
-
-- **问卷星自动化系统业务逻辑文档.md**: 系统业务流程和核心功能说明
-- **问卷星自动化系统后端实现细节文档.md**: 后端实现的技术细节
-- **问卷星自动化系统后端架构文档_Part1.md**: 系统架构概述、模块划分和数据流
-- **问卷星自动化系统后端架构文档_Part2.md**: 详细的组件设计和接口规范
-
 ## 开发者指南
 
 若要进行二次开发:
@@ -347,7 +328,6 @@ docker-compose logs
 3. 前端代码位于 `frontend` 目录
 4. 后端代码位于 `backend` 目录
 5. 进行修改后，重新构建并启动应用
-6. 更多开发详情请参考 `docs/guides/Development.md`
 
 ## 许可证
 

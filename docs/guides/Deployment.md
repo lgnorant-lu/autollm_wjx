@@ -1,6 +1,16 @@
 # 部署指南
 
-本文档提供问卷星自动化系统的部署说明，包括Docker和传统部署两种方式。
+[返回主页](../../README.md) | [快速入门](../../QUICK_START.md) | [开发指南](Development.md) | [用户指南](User.md)
+
+本文档提供问卷星自动化系统的部署说明，包括一键式部署、Docker部署和本地直接运行等多种方式。
+
+## 目录
+
+- [1. 环境要求](#1-环境要求)
+- [2. 一键式部署](#2-一键式部署)
+- [3. Docker手动部署](#3-docker手动部署)
+- [4. 本地直接运行](#4-本地直接运行)
+- [5. SSL配置](#5-ssl配置)
 
 ## 1. 环境要求
 
@@ -94,32 +104,11 @@ docker compose build
 docker compose up -d
 ```
 
-## 4. 本地直接运行
+## 3. 传统部署
 
-如果您不想使用Docker，或者希望在本地环境中直接运行应用（适合开发者或不想使用Docker的用户），可以使用以下方式部署。
+如果您不想使用Docker，可以使用传统方式部署。
 
-### 4.0 使用一键式脚本（推荐，仅Windows）
-
-对于Windows用户，我们提供了一键式部署脚本，可以自动完成环境配置和应用启动。
-
-#### 前提条件
-
-- 安装 [Python 3.9+](https://www.python.org/downloads/)
-- 安装 [Node.js 16+](https://nodejs.org/)
-
-#### 部署步骤
-
-1. 在项目根目录下，双击运行`setup_local.bat`脚本
-2. 按照屏幕提示操作，脚本将自动：
-   - 检查系统环境
-   - 创建Python虚拟环境
-   - 安装后端和前端依赖
-   - 配置环境变量
-   - 启动应用服务
-
-脚本将打开两个新的命令行窗口，分别运行前端和后端服务。默认情况下，前端服务运行在`http://localhost:8080`，后端服务运行在`http://localhost:5000`。
-
-### 4.1 后端部署
+### 3.1 后端部署
 
 #### 安装依赖
 
@@ -194,7 +183,7 @@ sudo systemctl enable autollm_wjx
 sudo systemctl start autollm_wjx
 ```
 
-### 4.2 前端部署
+### 3.2 前端部署
 
 #### 构建前端
 
@@ -255,9 +244,9 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-## 5. SSL配置
+## 4. SSL配置
 
-### 5.1 使用Let's Encrypt(推荐)
+### 4.1 使用Let's Encrypt(推荐)
 
 ```bash
 # 安装certbot
@@ -270,7 +259,7 @@ sudo certbot --nginx -d your_domain.com
 sudo certbot renew --dry-run
 ```
 
-### 5.2 使用自签名证书
+### 4.2 使用自签名证书
 
 ```bash
 # 生成证书
@@ -364,3 +353,14 @@ rm -rf $BACKUP_DIR
 2. 尝试重启服务
 3. 如果数据损坏，从备份恢复
 4. 检查网络和防火墙设置
+
+---
+
+## 相关文档
+
+- [开发指南](Development.md) - 如何进行二次开发
+- [测试指南](Testing.md) - 如何进行测试
+- [用户指南](User.md) - 系统使用说明
+- [架构设计](../design/Architecture.md) - 系统架构设计
+
+[返回顶部](#部署指南) | [返回主页](../../README.md) | [快速入门](../../QUICK_START.md)
