@@ -316,7 +316,7 @@ docker-compose logs
 
 ### 英文文档
 
-- **docs/guides/Deployment.md**: 部署指南，包含一键式部署、Docker部署和传统部署等方式
+- **docs/guides/Deployment.md**: 部署指南，包含一键式部署、Docker部署和本地直接运行等多种方式
 - **docs/guides/Development.md**: 开发指南，适合开发者阅读
 - **docs/guides/Testing.md**: 测试指南，说明如何进行单元测试和集成测试
 - **docs/guides/User.md**: 用户指南，说明系统的使用方法

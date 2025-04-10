@@ -94,11 +94,11 @@ docker compose build
 docker compose up -d
 ```
 
-## 3. 传统部署
+## 4. 本地直接运行
 
-如果您不想使用Docker，可以使用传统方式部署。
+如果您不想使用Docker，或者希望在本地环境中直接运行应用（适合开发者或不想使用Docker的用户），可以使用以下方式部署。
 
-### 3.1 后端部署
+### 4.1 后端部署
 
 #### 安装依赖
 
@@ -173,7 +173,7 @@ sudo systemctl enable autollm_wjx
 sudo systemctl start autollm_wjx
 ```
 
-### 3.2 前端部署
+### 4.2 前端部署
 
 #### 构建前端
 
@@ -207,14 +207,14 @@ sudo yum install nginx
 server {
     listen 80;
     server_name your_domain.com;
-    
+
     # 前端静态文件
     location / {
         root /path/to/autollm_wjx/frontend/dist;
         index index.html;
         try_files $uri $uri/ /index.html;
     }
-    
+
     # API代理
     location /api {
         proxy_pass http://localhost:5000;
@@ -234,9 +234,9 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
-## 4. SSL配置
+## 5. SSL配置
 
-### 4.1 使用Let's Encrypt(推荐)
+### 5.1 使用Let's Encrypt(推荐)
 
 ```bash
 # 安装certbot
@@ -249,7 +249,7 @@ sudo certbot --nginx -d your_domain.com
 sudo certbot renew --dry-run
 ```
 
-### 4.2 使用自签名证书
+### 5.2 使用自签名证书
 
 ```bash
 # 生成证书
@@ -262,10 +262,10 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/aut
 server {
     listen 443 ssl;
     server_name your_domain.com;
-    
+
     ssl_certificate /etc/ssl/certs/autollm_wjx.crt;
     ssl_certificate_key /etc/ssl/private/autollm_wjx.key;
-    
+
     # 其他配置同上
 }
 
@@ -342,4 +342,4 @@ rm -rf $BACKUP_DIR
 1. 检查日志文件定位问题
 2. 尝试重启服务
 3. 如果数据损坏，从备份恢复
-4. 检查网络和防火墙设置 
+4. 检查网络和防火墙设置

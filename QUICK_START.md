@@ -1,21 +1,26 @@
 # 问卷星自动化系统快速入门指南
 
-本指南提供了问卷星自动化系统的快速部署和使用说明，特别适合对Docker和部署不熟悉的新手用户。
+本指南提供了问卷星自动化系统的快速部署和使用说明，适合各种类型的用户。
 
 ## 一、系统要求
 
 - **操作系统**: Windows 10/11
-- **必要软件**: 
-  - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- **必要软件**:
+  - 选项A（Docker部署）: [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+  - 选项B（本地部署）: Python 3.9+, Node.js 16+, npm 7+
   - PowerShell (Windows 10/11自带)
 
-## 二、一键部署步骤
+## 二、部署选项
 
-### 1. 安装Docker Desktop
+您可以选择以下任一方式部署系统：
+
+### 选项A: Docker一键部署（推荐，适合所有用户）
+
+#### 1. 安装Docker Desktop
 
 如果您尚未安装Docker Desktop，请先从[官方网站](https://www.docker.com/products/docker-desktop/)下载并安装。
 
-### 2. 运行一键部署脚本
+#### 2. 运行一键部署脚本
 
 1. 确保Docker Desktop已启动
 2. 在项目根目录下，双击运行`setup.bat`脚本
@@ -25,13 +30,62 @@
    - 设置环境变量
    - 启动应用服务
 
-### 3. 访问应用
+### 选项B: 本地直接运行（适合开发者或不想使用Docker的用户）
 
-部署完成后，系统会自动在浏览器中打开应用页面。默认访问地址：
-- 前端界面: http://localhost:80
-- 后端API: http://localhost:5000
+#### 1. 安装必要的软件
 
-## 三、常见操作
+- 安装 [Python 3.9+](https://www.python.org/downloads/)
+- 安装 [Node.js 16+](https://nodejs.org/)
+
+#### 2. 设置环境
+
+1. 在项目根目录下，运行以下命令创建虚拟环境：
+   ```
+   python -m venv venv
+   .\venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+2. 设置前端环境：
+   ```
+   cd frontend
+   npm install
+   cd ..
+   ```
+
+3. 复制环境变量文件：
+   ```
+   copy .env.example .env
+   ```
+
+#### 3. 启动应用
+
+1. 启动后端：
+   ```
+   .\venv\Scripts\activate
+   cd backend
+   python app.py
+   ```
+
+2. 在新的命令行窗口中启动前端：
+   ```
+   cd frontend
+   npm run serve
+   ```
+
+## 三、访问应用
+
+部署完成后，可以通过以下地址访问应用：
+
+- **Docker部署**:
+  - 前端界面: http://localhost:80
+  - 后端API: http://localhost:5000
+
+- **本地部署**:
+  - 前端界面: http://localhost:8080
+  - 后端API: http://localhost:5000
+
+## 四、常见操作
 
 所有操作都可以通过`deploy.ps1`脚本完成，在PowerShell或命令提示符中运行：
 
@@ -61,7 +115,7 @@
 .\deploy.ps1 restore .\backups\backup_20250328_142500.zip
 ```
 
-## 四、常见问题
+## 五、常见问题
 
 ### Docker相关问题
 
@@ -79,7 +133,7 @@
 **问题**: 无法访问应用界面
 **解决**: 确保Docker容器正在运行(`.\deploy.ps1 status`)，并检查防火墙设置是否允许相应端口的访问。
 
-## 五、获取帮助
+## 六、获取帮助
 
 如需更详细的部署和使用说明，请参考：
 - 完整部署文档: [docs/guides/Deployment.md](docs/guides/Deployment.md)
