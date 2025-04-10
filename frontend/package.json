@@ -1,23 +1,24 @@
 {
     "name": "wjx-frontend",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "private": true,
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "serve": "vite preview"
     },
     "dependencies": {
-        "@element-plus/icons-vue": "^2.3.1",
-        "axios": "^1.6.2",
-        "echarts": "^5.6.0",
-        "element-plus": "^2.4.2",
+        "@element-plus/icons-vue": "^2.1.0",
+        "axios": "^1.4.0",
+        "echarts": "^5.4.2",
+        "element-plus": "^2.3.8",
         "vue": "^3.3.4",
-        "vue-echarts": "^7.0.3",
-        "vue-router": "^4.2.5"
+        "vue-echarts": "^6.6.0",
+        "vue-router": "^4.2.4"
     },
     "devDependencies": {
-        "@vitejs/plugin-vue": "^4.6.2",
-        "vite": "^4.5.0"
+        "@vitejs/plugin-vue": "^4.2.3",
+        "vite": "^4.4.7"
     }
 }

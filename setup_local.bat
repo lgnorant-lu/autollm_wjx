@@ -1,8 +1,11 @@
 @echo off
+:: 设置控制台代码页为UTF-8
+chcp 65001 >nul
+
 :: 问卷星自动化系统本地部署一键式脚本
 :: 作者: Ignorant-lu
 :: 描述: 用于在Windows环境下快速部署问卷星自动化系统（本地直接运行版）
-:: 版本: 1.0
+:: 版本: 1.1
 
 setlocal enabledelayedexpansion
 title 问卷星自动化系统本地部署
@@ -32,7 +35,7 @@ echo  - 启动应用服务
 echo.
 
 :: 确认是否继续
-set /p confirm=是否继续部署过程？(y/N): 
+set /p confirm=是否继续部署过程？(y/N):
 if /i not "%confirm%"=="y" (
     echo %YELLOW%已取消部署过程。%NC%
     goto :eof
@@ -78,8 +81,11 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 ) else (
-    for /f "tokens=1" %%a in ('node --version') do set "node_version=%%a"
-    echo %GREEN%  ✔ Node.js !node_version! 已安装%NC%
+    :: 直接获取版本信息，避免使用for命令解析
+    node --version > "%TEMP%\node_version.txt"
+    set /p node_version=<"%TEMP%\node_version.txt"
+    del "%TEMP%\node_version.txt"
+    echo %GREEN%  ✔ Node.js %node_version% 已安装%NC%
 )
 
 :: 检查npm
@@ -91,8 +97,11 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 ) else (
-    for /f "tokens=1" %%a in ('npm --version') do set "npm_version=%%a"
-    echo %GREEN%  ✔ npm !npm_version! 已安装%NC%
+    :: 直接获取版本信息，避免使用for命令解析
+    npm --version > "%TEMP%\npm_version.txt"
+    set /p npm_version=<"%TEMP%\npm_version.txt"
+    del "%TEMP%\npm_version.txt"
+    echo %GREEN%  ✔ npm %npm_version% 已安装%NC%
 )
 
 echo %GREEN%系统检查通过！%NC%
@@ -210,31 +219,31 @@ set /p start_now=
 if /i not "%start_now%"=="n" (
     echo %CYAN%正在启动应用...%NC%
     echo %YELLOW%这将打开两个新的命令行窗口，分别运行前端和后端服务%NC%
-    
+
     :: 启动后端
     start cmd /k "title 问卷星自动化系统-后端 & echo 正在启动后端服务... & call venv\Scripts\activate.bat & cd backend & python app.py"
-    
+
     :: 启动前端
     start cmd /k "title 问卷星自动化系统-前端 & echo 正在启动前端服务... & cd frontend & npm run serve"
-    
+
     echo %GREEN%  ✔ 应用已启动%NC%
-    
+
     :: 获取端口信息
     for /f "tokens=1,* delims==" %%a in (.env) do (
         if "%%a"=="FRONTEND_PORT" set FRONTEND_PORT=%%b
         if "%%a"=="BACKEND_PORT" set BACKEND_PORT=%%b
     )
-    
+
     if not defined FRONTEND_PORT set FRONTEND_PORT=8080
     if not defined BACKEND_PORT set BACKEND_PORT=5000
-    
+
     set FRONTEND_PORT=!FRONTEND_PORT: =!
     set BACKEND_PORT=!BACKEND_PORT: =!
-    
+
     echo %MAGENTA%应用访问地址:%NC%
     echo %GREEN%  ✔ 前端界面: %YELLOW%http://localhost:!FRONTEND_PORT!%NC%
     echo %GREEN%  ✔ 后端API: %YELLOW%http://localhost:!BACKEND_PORT!%NC%
-    
+
     :: 询问是否在浏览器中打开
     echo.
     echo %CYAN%是否在浏览器中打开前端页面？(Y/n):%NC%
