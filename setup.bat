@@ -19,7 +19,7 @@ echo 本脚本将帮助您快速部署问卷星自动化系统。
 echo.
 
 :: 确认是否继续
-set /p confirm=是否继续部署过程？(y/N): 
+set /p confirm=是否继续部署过程？(y/N):
 if /i not "%confirm%"=="y" (
     echo 已取消部署过程。
     goto :eof
@@ -55,7 +55,7 @@ if %errorlevel% neq 0 (
     echo 正在尝试启动Docker Desktop...
     start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
     echo 请等待Docker Desktop启动完成（约1分钟）...
-    
+
     :: 等待Docker启动
     echo 正在等待Docker启动...
     for /l %%i in (1,1,30) do (
@@ -67,7 +67,7 @@ if %errorlevel% neq 0 (
         )
         echo 等待中... %%i/30
     )
-    
+
     echo %RED%错误: Docker启动超时%NC%
     echo 请手动启动Docker Desktop，然后重新运行此脚本。
     pause
@@ -119,13 +119,13 @@ set /p start_now=
 if /i not "%start_now%"=="n" (
     echo %CYAN%正在启动应用...%NC%
     powershell -ExecutionPolicy Bypass -File .\deploy.ps1 start
-    
+
     if %errorlevel% neq 0 (
         echo %RED%应用启动失败%NC%
         pause
         exit /b 1
     )
-    
+
     echo.
     echo %GREEN%应用已成功启动！%NC%
     echo 您可以通过以下方式管理应用:
@@ -134,22 +134,22 @@ if /i not "%start_now%"=="n" (
     echo   - 重启: .\deploy.ps1 restart
     echo   - 查看日志: .\deploy.ps1 logs
     echo.
-    
+
     :: 获取端口信息
     for /f "tokens=1,* delims==" %%a in (.env) do (
         if "%%a"=="FRONTEND_PORT" set FRONTEND_PORT=%%b
         if "%%a"=="BACKEND_PORT" set BACKEND_PORT=%%b
     )
-    
+
     if not defined FRONTEND_PORT set FRONTEND_PORT=80
     if not defined BACKEND_PORT set BACKEND_PORT=5000
-    
+
     set FRONTEND_PORT=!FRONTEND_PORT: =!
     set BACKEND_PORT=!BACKEND_PORT: =!
-    
+
     echo %YELLOW%前端访问地址: http://localhost:!FRONTEND_PORT!%NC%
     echo %YELLOW%后端API地址: http://localhost:!BACKEND_PORT!%NC%
-    
+
     :: 询问是否在浏览器中打开
     echo.
     echo %CYAN%是否在浏览器中打开前端页面？(Y/n):%NC%
@@ -163,4 +163,4 @@ echo.
 echo %GREEN%部署过程已完成！%NC%
 echo 感谢使用问卷星自动化系统。
 
-pause 
+pause

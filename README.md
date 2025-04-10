@@ -306,6 +306,30 @@ docker-compose logs
 .\deploy.ps1 update
 ```
 
+## 文档说明
+
+本项目提供了详细的文档，包括：
+
+### 快速入门
+
+- **QUICK_START.md**: 项目根目录下的快速入门指南，适合新手用户
+
+### 英文文档
+
+- **docs/guides/Deployment.md**: 部署指南，包含一键式部署、Docker部署和传统部署等方式
+- **docs/guides/Development.md**: 开发指南，适合开发者阅读
+- **docs/guides/Testing.md**: 测试指南，说明如何进行单元测试和集成测试
+- **docs/guides/User.md**: 用户指南，说明系统的使用方法
+
+### 中文文档
+
+中文技术文档已移至`docs/zh/`目录，包括：
+
+- **问卷星自动化系统业务逻辑文档.md**: 系统业务流程和核心功能说明
+- **问卷星自动化系统后端实现细节文档.md**: 后端实现的技术细节
+- **问卷星自动化系统后端架构文档_Part1.md**: 系统架构概述、模块划分和数据流
+- **问卷星自动化系统后端架构文档_Part2.md**: 详细的组件设计和接口规范
+
 ## 开发者指南
 
 若要进行二次开发:
@@ -315,6 +339,7 @@ docker-compose logs
 3. 前端代码位于 `frontend` 目录
 4. 后端代码位于 `backend` 目录
 5. 进行修改后，重新构建并启动应用
+6. 更多开发详情请参考 `docs/guides/Development.md`
 
 ## 许可证
 
