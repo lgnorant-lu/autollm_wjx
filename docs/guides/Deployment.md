@@ -37,8 +37,15 @@ Docker部署是最简单且推荐的部署方式，可确保在不同环境中�
 
 ### 2.1 前提条件
 
-- 安装Docker: [Docker安装指南](https://docs.docker.com/get-docker/)
-- 安装Docker Compose: [Docker Compose安装指南](https://docs.docker.com/compose/install/)
+- **Windows用户**: 安装 [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/)
+  - Docker Desktop包含Docker Engine和Docker Compose
+  - 详细说明请参考 [Docker Desktop与Docker的关系说明](Docker_Explanation.md)
+
+- **Linux用户**:
+  - 安装Docker Engine: [Docker Engine安装指南](https://docs.docker.com/engine/install/)
+  - 安装Docker Compose: [Docker Compose安装指南](https://docs.docker.com/compose/install/)
+
+- **macOS用户**: 安装 [Docker Desktop for Mac](https://docs.docker.com/desktop/install/mac-install/)
 
 ### 2.2 获取代码
 
