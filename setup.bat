@@ -41,22 +41,61 @@ if %errorlevel% neq 0 (
 )
 
 :: 检查Docker
+echo %CYAN%正在检查Docker安装...%NC%
+
+:: 首先检查Docker命令是否可用
 where docker >nul 2>nul
-if %errorlevel% neq 0 (
-    echo %RED%错误: 未找到Docker%NC%
-    echo 请安装Docker Desktop，参考: https://docs.docker.com/desktop/install/windows-install/
-    echo 安装完成后重新运行此脚本。
-    start https://docs.docker.com/desktop/install/windows-install/
-    pause
-    exit /b 1
+set docker_cmd_available=%errorlevel%
+
+:: 然后检查Docker Desktop服务是否存在
+powershell -Command "Get-Service -Name 'com.docker.service' -ErrorAction SilentlyContinue" >nul 2>nul
+set docker_service_exists=%errorlevel%
+
+if %docker_cmd_available% neq 0 (
+    if %docker_service_exists% neq 0 (
+        :: Docker未安装
+        echo %RED%错误: 未找到Docker%NC%
+        echo 请安装Docker Desktop，参考: https://docs.docker.com/desktop/install/windows-install/
+        echo 安装完成后重新运行此脚本。
+        start https://docs.docker.com/desktop/install/windows-install/
+        pause
+        exit /b 1
+    ) else (
+        :: Docker Desktop已安装但命令不可用
+        echo %YELLOW%警告: 检测到Docker Desktop已安装，但Docker命令不可用%NC%
+        echo 可能的原因:
+        echo  1. Docker Desktop未启动
+        echo  2. Docker命令未添加到PATH环境变量
+        echo  3. 需要重启系统使环境变量生效
+        echo.
+        echo 正在尝试启动Docker Desktop...
+        start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+        echo 请等待Docker Desktop启动完成（约1分钟）...
+        echo 启动后请重新运行此脚本。
+        pause
+        exit /b 1
+    )
 )
 
 :: 检查Docker是否运行
 docker info >nul 2>nul
 if %errorlevel% neq 0 (
     echo %YELLOW%警告: Docker未运行%NC%
-    echo 正在尝试启动Docker Desktop...
-    start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+
+    :: 检查Docker Desktop程序是否存在
+    if exist "C:\Program Files\Docker\Docker\Docker Desktop.exe" (
+        echo 正在尝试启动Docker Desktop...
+        start "" "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+    ) else if exist "C:\Program Files\Docker Desktop\Docker Desktop.exe" (
+        echo 正在尝试启动Docker Desktop...
+        start "" "C:\Program Files\Docker Desktop\Docker Desktop.exe"
+    ) else (
+        echo %RED%错误: 无法找到Docker Desktop程序%NC%
+        echo 请手动启动Docker Desktop，然后重新运行此脚本。
+        pause
+        exit /b 1
+    )
+
     echo 请等待Docker Desktop启动完成（约1分钟）...
 
     :: 等待Docker启动
