@@ -4,7 +4,7 @@ set -e
 echo "创建问卷星自动化系统的Python虚拟环境..."
 
 # 设置变量
-VENV_NAME="wjx_venv"
+VENV_NAME=".venv"
 REQUIREMENTS_FILE="requirements.txt"
 
 # 检查Python是否已安装
@@ -42,4 +42,4 @@ fi
 echo ""
 echo "虚拟环境设置完成！"
 echo "要激活虚拟环境，请运行: source $VENV_NAME/bin/activate"
-echo "" 
+echo ""

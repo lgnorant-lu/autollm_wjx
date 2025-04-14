@@ -4,7 +4,7 @@ set -e
 echo "生成依赖锁定文件..."
 
 # 设置变量
-VENV_NAME="wjx_venv"
+VENV_NAME=".venv"
 REQUIREMENTS_DIR="backend/requirements"
 
 # 激活虚拟环境
@@ -26,4 +26,4 @@ pip-compile --output-file=$REQUIREMENTS_DIR/requirements-dev.lock $REQUIREMENTS_
 echo "为文档依赖生成锁定文件..."
 pip-compile --output-file=$REQUIREMENTS_DIR/requirements-docs.lock $REQUIREMENTS_DIR/requirements-docs.txt
 
-echo "依赖锁定文件生成完成！" 
+echo "依赖锁定文件生成完成！"
