@@ -36,14 +36,20 @@ RUN groupadd -r wjxuser && useradd -r -g wjxuser wjxuser
 # 拷贝依赖文件
 COPY ./backend/requirements/ /app/backend/requirements/
 COPY ./backend/requirements.txt /app/backend/
-RUN pip install --no-cache-dir -r backend/requirements.txt
+RUN pip install --no-cache-dir -r backend/requirements.txt \
+    && pip install --no-cache-dir -r backend/requirements/requirements-prod.txt
 
 # 拷贝应用代码
 COPY ./backend .
 
 # 创建必要的数据和日志目录
 RUN mkdir -p /app/data /app/logs && \
-    chown -R wjxuser:wjxuser /app
+    chown -R wjxuser:wjxuser /app && \
+    chmod -R 777 /app/data /app/logs
+
+# 创建必要的子目录
+RUN mkdir -p /app/data/surveys /app/data/tasks /app/data/archive /app/logs/api && \
+    chmod -R 777 /app/data/surveys /app/data/tasks /app/data/archive /app/logs/api
 
 # 切换到非root用户
 USER wjxuser

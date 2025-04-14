@@ -22,10 +22,17 @@
 
 如果您尚未安装Docker Desktop，请先从[官方网站](https://www.docker.com/products/docker-desktop/)下载并安装。
 
-#### 2. 运行一键部署脚本
+#### 2. 配置Docker镜像加速器
+
+为了解决从Docker Hub拉取镜像的网络问题，建议配置Docker镜像加速器。在Docker Desktop的设置中，找到"Docker Engine"配置部分，添加镜像加速器配置。详细说明请参考[部署指南](Deployment.md#21-镜像加速器配置)。
+
+#### 3. 运行一键部署脚本
 
 1. 确保Docker Desktop已启动
-2. 在项目根目录下，双击运行`setup.bat`脚本
+2. 在项目根目录下，打开PowerShell或命令提示符，运行：
+   ```powershell
+   .\setup.ps1
+   ```
 3. 按照屏幕提示操作，脚本将自动：
    - 检查系统环境
    - 配置必要的文件和目录
@@ -155,6 +162,12 @@
    # 启动静态前端服务器
    .\deploy.ps1 static-frontend
    ```
+
+**问题**: 前端页面无法加载外部资源（如CDN上的样式表）
+**解决**: 修改nginx配置中的Content Security Policy (CSP)头部，允许加载外部资源。详细操作请参考[部署指南](Deployment.md#351-content-security-policy-csp问题)。
+
+**问题**: 容器显示为"unhealthy"状态
+**解决**: 在docker-compose.yml文件中禁用健康检查配置。详细操作请参考[部署指南](Deployment.md#352-容器健康检查问题)。
 
 ### 应用相关问题
 

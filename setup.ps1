@@ -11,11 +11,11 @@
     Date:   (Current Date)
 #>
 
-# --- 配置 --- 
+# --- 配置 ---
 # 启用严格模式
 Set-StrictMode -Version Latest
 
-# --- 消息定义 --- 
+# --- 消息定义 ---
 $MSG_TITLE = "问卷星自动化系统一键部署脚本 (PowerShell)"
 $MSG_WELCOME = "本脚本将帮助您快速部署问卷星自动化系统。"
 $MSG_CONFIRM_PROMPT = "是否继续部署过程？(y/N):"
@@ -88,12 +88,12 @@ $MSG_DEPLOY_COMPLETE = "部署过程已完成！"
 $MSG_THANK_YOU = "感谢使用问卷星自动化系统。"
 $MSG_EXIT_PROMPT = "按 Enter 键退出..."
 
-# --- 全局变量 --- 
+# --- 全局变量 ---
 $DockerExePath = $null # 用于存储找到的 Docker 可执行文件路径（如果不在PATH中）
 $DockerPathCacheFile = Join-Path $env:TEMP "docker_path_cache.txt"
 $IsAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
-# --- 函数定义 --- 
+# --- 函数定义 ---
 
 function Exit-Script($exitCode = 0) {
     Read-Host -Prompt $MSG_EXIT_PROMPT | Out-Null
@@ -128,9 +128,9 @@ function Find-DockerCliInstallation {
     Write-Host $MSG_CHECKING_DOCKER_CACHE
     if (Test-Path -LiteralPath $DockerPathCacheFile) { # Use LiteralPath here too
         # Read the first line and trim any leading/trailing whitespace
-        $cachedPath = (Get-Content $DockerPathCacheFile | Select-Object -First 1).Trim() 
+        $cachedPath = (Get-Content $DockerPathCacheFile | Select-Object -First 1).Trim()
         # Use -LiteralPath and check if $cachedPath is not empty
-        if ($cachedPath -and (Test-Path -LiteralPath $cachedPath -ErrorAction SilentlyContinue)) { 
+        if ($cachedPath -and (Test-Path -LiteralPath $cachedPath -ErrorAction SilentlyContinue)) {
             if ($cachedPath -like '*docker.exe') {
                 Write-Host "$MSG_FOUND_DOCKER_CACHE (CLI) $cachedPath"
                 # Verify it's really docker.exe (basic check)
@@ -142,7 +142,7 @@ function Find-DockerCliInstallation {
             } elseif ($cachedPath -like '*Docker Desktop.exe') {
                  # Might be Desktop path from old cache
                  Write-Host "$MSG_FOUND_DOCKER_CACHE (Desktop) $cachedPath"
-                 $dockerDesktopPath = $cachedPath 
+                 $dockerDesktopPath = $cachedPath
                  # Attempt to find CLI relative to Desktop path if CLI not found yet
                  try {
                      $desktopItem = Get-Item -LiteralPath $dockerDesktopPath -ErrorAction Stop
@@ -183,7 +183,7 @@ function Find-DockerCliInstallation {
                 $dockerCliPath = Check-DirectoryForDockerCli -Directory $serviceDir
                 if ($dockerCliPath) {
                      Write-Host "  (找到 CLI 通过服务路径: $dockerCliPath)"
-                } 
+                }
                 # Also check if service path points to Docker Desktop
                 if (-not $dockerDesktopPath -and ($servicePath -like '*Docker Desktop.exe') -and (Test-Path $servicePath)) {
                     $dockerDesktopPath = $servicePath
@@ -227,19 +227,19 @@ function Find-DockerCliInstallation {
                             # Still need to check this dir for CLI
                             $dockerCliPath = Check-DirectoryForDockerCli -Directory (Split-Path $dockerDesktopPath -Parent)
                             if ($dockerCliPath) { Write-Host "  (找到 CLI: $dockerCliPath)"; break }
-                        } 
+                        }
                     }
                 }
             } catch {}
         }
     }
-    
+
     # 4. 检查常见安装位置 (CLI 和 Desktop)
     if (-not $dockerCliPath) {
         Write-Host $MSG_CHECKING_DOCKER_COMMON
         $commonPaths = @(
             # Prioritize potential CLI paths
-            "$env:ProgramFiles\Docker\Docker\resources\bin\docker.exe", 
+            "$env:ProgramFiles\Docker\Docker\resources\bin\docker.exe",
             "$env:ProgramFiles\Docker\Docker\docker.exe",
             "$env:ProgramFiles\Docker\docker.exe",
             "${env:ProgramFiles(x86)}\Docker\Docker\resources\bin\docker.exe",
@@ -282,7 +282,7 @@ function Find-DockerCliInstallation {
                     if ($dockerCliPath) {
                         Write-Host "  (找到 CLI: $dockerCliPath)"
                         break # Found both, exit loop
-                    } 
+                    }
                 }
             }
         }
@@ -324,7 +324,7 @@ function Start-Docker($DesktopPath, $CliPath) {
         } catch {
             Write-Warning "使用路径启动 Docker Desktop GUI 失败: $($_.Exception.Message)"
         }
-    } 
+    }
 
     # 尝试从注册表 App Path 启动 GUI
     if (-not $startedGui) {
@@ -388,7 +388,7 @@ function Start-Docker($DesktopPath, $CliPath) {
             Write-Host "DEBUG: Attempting 'docker info' (Wait Loop)..." -ForegroundColor Cyan
             if ($CliPath) {
                  Write-Host "DEBUG: Using CLI Path: '$CliPath'" -ForegroundColor Cyan
-                 $dockerInfoResult = & $CliPath info -ErrorAction Stop 2>&1 
+                 $dockerInfoResult = & $CliPath info -ErrorAction Stop 2>&1
             } else {
                  Write-Host "DEBUG: Using 'docker' from PATH" -ForegroundColor Cyan
                  $dockerInfoResult = docker info -ErrorAction Stop 2>&1
@@ -403,13 +403,13 @@ function Start-Docker($DesktopPath, $CliPath) {
             Write-Warning "DEBUG: 'docker info' command FAILED in wait loop. Error: $($_.Exception.Message)"
             if ($_.ScriptStackTrace) { Write-Warning "DEBUG: StackTrace: $($_.ScriptStackTrace)" }
             # Check if output was captured before error
-            if ($dockerInfoResult -ne $null) { 
+            if ($dockerInfoResult -ne $null) {
                 Write-Warning "DEBUG: Output before error (if any): $dockerInfoResult"
             } elseif ($_.TargetObject) {
                  Write-Warning "DEBUG: Error TargetObject: $($_.TargetObject)"
             }
         }
-        
+
         Start-Sleep -Seconds 3 # Wait longer between checks
         $waitTime += 3
         Write-Host "." -NoNewline
@@ -435,7 +435,7 @@ function Start-Docker($DesktopPath, $CliPath) {
 }
 
 
-# --- 脚本主体 --- 
+# --- 脚本主体 ---
 
 Clear-Host
 Write-Host $MSG_TITLE
@@ -456,10 +456,10 @@ if ($confirm -ne 'y') {
 }
 Write-Host ""
 
-# --- 检查系统要求 --- 
+# --- 检查系统要求 ---
 Write-Host $MSG_CHECKING_REQ
 
-# 1. 检查 PowerShell 
+# 1. 检查 PowerShell
 Write-Host $MSG_POWERSHELL_OK
 
 # 2. 检查 Docker 命令是否存在于 PATH 或可查找
@@ -485,7 +485,7 @@ if ($dockerCmd) {
     Write-Warning $MSG_ERR_NO_DOCKER_CMD
     # 尝试查找 Docker CLI 和 Desktop 安装路径
     $DockerCliPath, $DockerDesktopPath = Find-DockerCliInstallation
-    
+
     if (-not $DockerCliPath) {
         Write-Error $MSG_ERR_DOCKER_NOT_FOUND
         Write-Host "$MSG_INSTALL_DOCKER https://docs.docker.com/desktop/install/windows-install/"
@@ -498,7 +498,7 @@ if ($dockerCmd) {
     }
 }
 
-# --- Add Docker Context Check --- 
+# --- Add Docker Context Check ---
 Write-Host "--- Checking Docker Context --- " -ForegroundColor Yellow
 try {
     $contextOutput = $null
@@ -512,9 +512,9 @@ try {
         $contextOutput = docker context show 2>&1
     }
     Write-Host "Current Docker Context:"
-    if ($contextOutput -like "*error*" -or $contextOutput -like "*unknown*" -or $LASTEXITCODE -ne 0) { 
+    if ($contextOutput -like "*error*" -or $contextOutput -like "*unknown*" -or $LASTEXITCODE -ne 0) {
         Write-Warning "Docker context output indicates an issue:"
-        Write-Warning ($contextOutput | Out-String) 
+        Write-Warning ($contextOutput | Out-String)
     } else {
         Write-Host ($contextOutput | Out-String) -ForegroundColor Green
     }
@@ -523,7 +523,7 @@ try {
     if ($_.ScriptStackTrace) { Write-Warning "DEBUG: StackTrace: $($_.ScriptStackTrace)" }
 }
 Write-Host "----------------------------- " -ForegroundColor Yellow
-# --- End Docker Context Check --- 
+# --- End Docker Context Check ---
 
 # 3. 检查 Docker 是否运行 (docker info)
 Write-Host "正在检查 Docker 守护进程状态 (docker info)..."
@@ -534,10 +534,10 @@ try {
     Write-Host "DEBUG: Attempting initial 'docker info' check..." -ForegroundColor Cyan
     if (-not $DockerCliInSystemPath -and $DockerCliPath) {
         Write-Host "DEBUG: Using CLI Path: '$DockerCliPath'" -ForegroundColor Cyan
-        $dockerInfoOutput = & $DockerCliPath info -ErrorAction Stop 2>&1 
+        $dockerInfoOutput = & $DockerCliPath info -ErrorAction Stop 2>&1
     } else {
         Write-Host "DEBUG: Using 'docker' from PATH" -ForegroundColor Cyan
-        $dockerInfoOutput = docker info -ErrorAction Stop 2>&1 
+        $dockerInfoOutput = docker info -ErrorAction Stop 2>&1
     }
     Write-Host "DEBUG: Initial 'docker info' check SUCCEEDED." -ForegroundColor Green
     $dockerRunning = $true
@@ -555,13 +555,13 @@ if (-not $dockerRunning) {
         Write-Warning "Reason for initial failure: $($dockerCheckError.Exception.Message)"
         # Check if it was command not found
          if ($dockerCheckError.Exception.Message -like "*无法将?docker?项识别*" -or $dockerCheckError.FullyQualifiedErrorId -eq 'CommandNotFoundException') {
-              Write-Error "Docker command not found. Cannot proceed." 
+              Write-Error "Docker command not found. Cannot proceed."
               Exit-Script 1
          }
     }
-    
+
     # 尝试启动 Docker (pass both Desktop and CLI paths)
-    if (-not (Start-Docker -DesktopPath $DockerDesktopPath -CliPath $DockerCliPath)) { 
+    if (-not (Start-Docker -DesktopPath $DockerDesktopPath -CliPath $DockerCliPath)) {
         Write-Error $MSG_ERR_CANNOT_START_DOCKER
         Write-Host $MSG_DOCKER_TROUBLESHOOT_PROMPT
         Write-Host $MSG_DOCKER_TROUBLESHOOT_1
@@ -571,7 +571,7 @@ if (-not $dockerRunning) {
         Write-Host $MSG_DOCKER_TROUBLESHOOT_5
         Write-Host ""
         Read-Host -Prompt $MSG_DOCKER_MANUAL_START_PROMPT | Out-Null
-        
+
         # 再次检查 (use try/catch again)
         Write-Host "DEBUG: Re-checking 'docker info' after manual prompt..." -ForegroundColor Cyan
         $dockerInfoOutput = $null
@@ -581,11 +581,11 @@ if (-not $dockerRunning) {
              if (-not $DockerCliInSystemPath -and $DockerCliPath) {
                  $dockerInfoOutput = & $DockerCliPath info -ErrorAction Stop 2>&1
              } else {
-                 $dockerInfoOutput = docker info -ErrorAction Stop 2>&1 
+                 $dockerInfoOutput = docker info -ErrorAction Stop 2>&1
              }
              $manualStartSuccess = $true
         } catch {
-            $lastCheckError = $_ 
+            $lastCheckError = $_
         }
 
         if (-not $manualStartSuccess) {
@@ -601,13 +601,13 @@ if (-not $dockerRunning) {
 } else {
     Write-Host "Docker 守护进程已运行。" -ForegroundColor Green
     # Optionally display some output from the successful initial check
-    # Write-Host "DEBUG: Initial 'docker info' output snippet: $($dockerInfoOutput | Select-Object -First 5 | Out-String)" 
+    # Write-Host "DEBUG: Initial 'docker info' output snippet: $($dockerInfoOutput | Select-Object -First 5 | Out-String)"
 }
 
 Write-Host $MSG_SYS_CHECK_OK
 Write-Host ""
 
-# --- 部署步骤 --- 
+# --- 部署步骤 ---
 
 # 检查当前目录是否为项目根目录
 $composeFile = ".\docker-compose.yml"
@@ -669,9 +669,15 @@ if ($startNow -ne 'n') {
     if (Test-Path $envFile) {
         try {
             $envContent = Get-Content $envFile -Raw
-            $envVars = $envContent | ConvertFrom-StringData -Delimiter '='
-            if ($envVars.ContainsKey('FRONTEND_PORT') -and $envVars.FRONTEND_PORT) { $FRONTEND_PORT = $envVars.FRONTEND_PORT.Trim() }
-            if ($envVars.ContainsKey('BACKEND_PORT') -and $envVars.BACKEND_PORT) { $BACKEND_PORT = $envVars.BACKEND_PORT.Trim() }
+            # 手动解析环境变量文件
+            foreach($line in ($envContent -split "`n")) {
+                $line = $line.Trim()
+                if ($line -and -not $line.StartsWith('#')) {
+                    $key, $value = $line -split '=', 2
+                    if ($key -eq 'FRONTEND_PORT') { $FRONTEND_PORT = $value.Trim() }
+                    if ($key -eq 'BACKEND_PORT') { $BACKEND_PORT = $value.Trim() }
+                }
+            }
         } catch {
              Write-Warning "解析 .env 文件获取端口失败: $($_.Exception.Message)"
         }

@@ -68,6 +68,10 @@
 
 **注意**：配置镜像加速器后，您应该能够成功拉取nginx镜像，这对于前端容器的构建是必要的。如果仍然无法拉取镜像，可以使用静态前端备用方案（见下文）。
 
+### 2.2 健康检查配置
+
+如果您的网络环境不稳定，可能会导致容器健康检查失败。在这种情况下，建议禁用健康检查。编辑docker-compose.yml文件，注释或删除所有的healthcheck部分。
+
 ## 3. Docker部署方法
 
 ### 3.1 前提条件
@@ -87,10 +91,21 @@ cd autollm_wjx
 创建`.env`文件在项目根目录：
 
 ```
+# 环境配置
+ENV_MODE=production
+
+# 端口配置
+FRONTEND_PORT=80
+BACKEND_PORT=5000
+
 # LLM API配置
 LLM_PROVIDER=openai
 LLM_API_KEY=your_api_key_here
 LLM_MODEL=gpt-3.5-turbo
+
+# 代理配置
+USE_PROXY=false
+DEFAULT_PROXY_URL=
 
 # 生产环境配置
 FLASK_ENV=production
@@ -101,7 +116,14 @@ LOG_LEVEL=INFO
 
 1. 确保Docker Desktop已启动并配置了镜像加速器
 2. 打开PowerShell或终端，进入项目根目录
-3. 运行部署脚本：
+3. 运行一键部署脚本：
+
+```powershell
+# Windows
+.\setup.ps1
+```
+
+或者使用部署脚本手动启动：
 
 ```powershell
 # Windows
@@ -112,6 +134,114 @@ LOG_LEVEL=INFO
 ```
 
 这将启动后端API服务和前端服务。
+
+### 3.5 处理常见部署问题
+
+#### 3.5.1 Content Security Policy (CSP)问题
+
+如果前端页面无法加载外部资源（如CDN上的样式表）或连接到后端API，可能是nginx配置中的CSP头部设置不正确。解决方法：
+
+```powershell
+# 创建正确的nginx配置文件
+$cspConfig = @"
+server {
+    listen 80;
+    server_name localhost;
+
+    # 启用gzip压缩
+    gzip on;
+    gzip_comp_level 5;
+    gzip_min_length 256;
+    gzip_proxied any;
+    gzip_types
+        application/javascript
+        application/json
+        application/xml
+        text/css
+        text/plain
+        text/xml;
+
+    # 安全相关头部
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Content-Type-Options "nosniff";
+
+    # 修改CSP以允许外部资源和API连接
+    add_header Content-Security-Policy "default-src 'self' https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; style-src 'self' 'unsafe-inline' https: http:; img-src 'self' data: https: http:; font-src 'self' data: https: http:; connect-src 'self' https: http: ws: wss:;";
+
+    # 静态文件服务
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html;
+        try_files `$uri `$uri/ /index.html;
+        expires 30d;
+    }
+
+    # 静态资源缓存策略
+    location ~* \.(css|js|jpg|jpeg|png|gif|ico|svg)`$ {
+        root /usr/share/nginx/html;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000";
+    }
+
+    # API代理
+    location /api {
+        proxy_pass http://backend:5000/api;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host `$host;
+        proxy_set_header X-Real-IP `$remote_addr;
+        proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto `$scheme;
+        proxy_cache_bypass `$http_upgrade;
+    }
+
+    # 后端根路径代理
+    location = / {
+        proxy_pass http://backend:5000/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade `$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host `$host;
+        proxy_set_header X-Real-IP `$remote_addr;
+        proxy_set_header X-Forwarded-For `$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto `$scheme;
+        proxy_cache_bypass `$http_upgrade;
+    }
+
+    # 错误页面
+    error_page 404 /index.html;
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+}
+"@
+
+# 将配置写入文件
+$cspConfig | Out-File -Encoding utf8 -FilePath .\frontend\nginx\default.conf.new
+
+# 复制配置到容器
+docker cp .\frontend\nginx\default.conf.new wjx-frontend:/etc/nginx/conf.d/default.conf
+
+# 重新加载nginx配置
+docker exec wjx-frontend nginx -s reload
+```
+
+#### 3.5.2 容器健康检查问题
+
+如果容器显示为"unhealthy"状态，可以修改docker-compose.yml文件，禁用健康检查：
+
+```powershell
+# 编辑docker-compose.yml文件
+notepad docker-compose.yml
+
+# 注释或删除healthcheck部分
+# 然后重新启动容器
+docker-compose down
+docker-compose up -d
+```
 
 ## 4. 静态前端备用方案
 
@@ -310,6 +440,29 @@ sudo systemctl restart nginx
 - `LLM_MODEL`: LLM模型名称，如`gpt-3.5-turbo`
 - `USE_PROXY`: 是否使用代理，可选值为`true`或`false`
 - `DEFAULT_PROXY_URL`: 默认代理URL
+
+完整的`.env`文件示例：
+
+```
+# 环境配置
+ENV_MODE=production
+
+# 端口配置
+FRONTEND_PORT=80
+BACKEND_PORT=5000
+
+# LLM配置
+LLM_PROVIDER=openai
+LLM_API_KEY=your_api_key_here
+LLM_MODEL=gpt-3.5-turbo
+
+# 代理配置
+USE_PROXY=false
+DEFAULT_PROXY_URL=
+
+# 日志级别
+LOG_LEVEL=INFO
+```
 
 ## 9. 高级部署选项
 

@@ -29,14 +29,12 @@ FROM nginx:stable-alpine AS production
 COPY ./frontend/nginx/default.conf /etc/nginx/conf.d/default.conf
 # 复制构建结果
 COPY --from=build /app/dist /usr/share/nginx/html
+# 复制环境变量文件
+COPY ./frontend/.env.example /app/.env.example
 
 # 添加运行时配置脚本（可以在启动时调整API地址）
 COPY ./frontend/scripts/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
-
-# 添加健康检查
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD wget -q -O /dev/null http://localhost:80/ || exit 1
 
 # 暴露端口
 EXPOSE 80
