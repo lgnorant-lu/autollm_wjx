@@ -137,7 +137,7 @@ DEFAULT_PROXY_URL=              # 默认代理URL，例如 http://127.0.0.1:7890
 setup_venv.bat
 
 # 激活虚拟环境
-call wjx_venv\Scripts\activate.bat
+call .venv\Scripts\activate.bat
 
 # 安装开发依赖
 set DEV_MODE=1
@@ -155,7 +155,7 @@ setup_venv.bat
 bash setup_venv.sh
 
 # 激活虚拟环境
-source wjx_venv/bin/activate
+source .venv/bin/activate
 
 # 安装开发依赖
 export DEV_MODE=1
