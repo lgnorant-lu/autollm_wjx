@@ -1,39 +1,6 @@
-﻿# 问卷星自动化系统依赖文件
-# 默认安装生产环境所需依赖
-
-# 基础依赖
-Flask==2.2.3
-flask-cors==4.0.0
-requests==2.28.2
-beautifulsoup4==4.12.2
-python-dotenv==1.0.0
-lxml==4.9.2
-Werkzeug==2.2.3
-Jinja2==3.1.2
-loguru==0.7.0
-APScheduler==3.10.1
-tqdm==4.65.0
-selenium==4.10.0
-pandas==2.0.3
-numpy==1.24.3
-urllib3==1.26.15
-
-# 生产环境依赖
-gunicorn==21.2.0
-waitress==2.1.2
-
-# 取消以下注释以安装开发依赖
-# pytest==7.3.1
-# pytest-cov==4.1.0
-# flake8==6.0.0
-# black==23.3.0
-# pip-tools==6.13.0
-# ipython==8.13.2
-# debugpy==1.6.7
-
-# 取消以下注释以安装文档生成依赖
-# graphviz==0.20.1
-# sphinx==7.1.2
-# sphinx-rtd-theme==1.2.2
-# mkdocs==1.5.2
-# mkdocs-material==9.2.8
+flask==2.2.3 
+flask-cors==4.0.0 
+requests==2.28.2 
+python-dotenv==1.0.0 
+loguru==0.7.0 
+openai==1.1.1 

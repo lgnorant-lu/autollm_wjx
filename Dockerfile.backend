@@ -1,4 +1,4 @@
-# 基础镜像（区分开发与生产）
+﻿# 基础镜像（区分开发与生产）
 ARG ENV_MODE=production
 FROM python:3.9-slim AS base
 
@@ -47,10 +47,6 @@ RUN mkdir -p /app/data /app/logs && \
 
 # 切换到非root用户
 USER wjxuser
-
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:5000/ || exit 1
 
 # 使用gunicorn启动应用（优化worker配置）
 CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5000", "--workers=4", "--worker-class=gthread", "--threads=2", "--timeout=60", "--access-logfile=-", "--error-logfile=-"]

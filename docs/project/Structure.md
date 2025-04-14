@@ -1,18 +1,24 @@
-# 项目结构文档
+# 问卷星自动化系统 - 项目结构
+
+[返回文档索引](../index.md) | [部署指南](../guides/Deployment.md) | [故障排除](../guides/Troubleshooting.md) | [静态前端备用方案](../guides/static-frontend.md)
 
 本文档描述问卷星自动化系统的文件目录结构和各模块组成。
+
+## 项目概述
+
+问卷星自动化系统是一个用于自动化问卷调查流程的应用程序，包含前端和后端两个主要组件。前端使用Vue.js构建，后端使用Flask构建。
 
 ## 1. 目录结构概览
 
 ```
-wjx_api/
-├── backend/                 # 后端服务
+autollm_wjx/
+├── backend/                 # 后端API服务
 │   ├── api/                 # API接口定义
 │   ├── core/                # 核心功能实现
 │   ├── data/                # 数据存储目录
 │   ├── tests/               # 测试代码
 │   ├── utils/               # 工具函数
-│   ├── app.py               # 应用入口
+│   ├── app.py               # 主应用入口
 │   ├── config.py            # 配置文件
 │   └── requirements.txt     # 依赖管理
 │
@@ -28,7 +34,10 @@ wjx_api/
 │   │   ├── App.vue          # 主应用组件
 │   │   └── main.js          # 入口文件
 │   ├── package.json         # 依赖管理
-│   └── vue.config.js        # Vue配置
+│   └── nginx/               # Nginx配置
+│
+├── static_frontend/         # 静态前端备用方案
+│   └── index.html           # 静态前端页面
 │
 ├── docs/                    # 文档
 │   ├── design/              # 设计文档
@@ -37,25 +46,12 @@ wjx_api/
 │   ├── project/             # 项目文档
 │   └── references/          # 参考文档
 │
-├── data/                    # 数据存储根目录
-│   └── archive/             # 数据归档目录
-│
-├── logs/                    # 日志存储目录
-│
-├── deploy.ps1               # Windows PowerShell部署脚本 [已完成]
-├── deploy.sh                # Linux/MacOS部署脚本 [已完成]
-├── setup.bat                # Windows一键部署批处理文件 [已完成]
-├── .env.example             # 环境变量示例文件 [已完成]
-├── docker-compose.yml       # Docker Compose主配置 [已完成]
-├── docker-compose.override.yml # Docker Compose开发配置 [已完成]
-├── Dockerfile.backend       # 后端Docker镜像配置 [已完成]
-├── Dockerfile.frontend      # 前端Docker镜像配置 [已完成]
-├── .gitignore               # Git忽略配置 [已完成]
-├── README.md                # 项目说明 [已完成]
-└── .legacy/                 # 遗留文件目录 [待处理]
-    ├── main.py              # 旧版本入口脚本 [待移除]
-    ├── cleanup.py           # 项目清理脚本 [待整合]
-    └── README.md            # 遗留文件说明 [已完成]
+├── deploy.ps1               # 部署脚本
+├── docker-compose.yml       # Docker Compose配置
+├── Dockerfile.backend       # 后端Docker配置
+├── Dockerfile.frontend      # 前端Docker配置
+├── static_server.py         # 静态服务器脚本
+└── .env.example             # 环境变量示例文件
 ```
 
 ## 2. 后端服务详细结构
@@ -125,23 +121,6 @@ API模块负责处理所有HTTP请求，实现RESTful接口，包括请求验证
 
 工具模块提供各种辅助功能，被其他模块共同使用，实现代码复用和功能集中管理。
 
-### 2.5 测试代码 (`backend/tests/`)
-
-| 目录/文件 | 状态 | 描述 |
-|----------|------|------|
-| `unit/` | [已完成] | 单元测试 |
-| `├── test_parser.py` | [已完成] | 解析器测试 |
-| `├── test_generator.py` | [已完成] | 生成器测试 |
-| `├── test_submitter.py` | [已完成] | 提交器测试 |
-| `integration/` | [已完成] | 集成测试 |
-| `├── test_api.py` | [已完成] | API集成测试 |
-| `├── test_workflow.py` | [已完成] | 工作流集成测试 |
-| `data/` | [已完成] | 测试数据 |
-| `├── sample_surveys/` | [已完成] | 样例问卷HTML |
-| `conftest.py` | [已完成] | pytest配置和fixtures |
-
-测试模块组织了单元测试和集成测试，确保系统功能正确性和稳定性。
-
 ## 3. 前端应用详细结构
 
 ### 3.1 源代码目录 (`frontend/src/`)
@@ -182,83 +161,32 @@ API模块负责处理所有HTTP请求，实现RESTful接口，包括请求验证
 
 前端采用组件化开发，清晰划分各功能模块，使用状态管理实现数据共享，API模块统一处理与后端的通信。
 
-## 4. 文档结构
+## 4. 静态前端备用方案
 
-### 4.1 设计文档 (`docs/design/`)
+### 4.1 组件说明
 
-| 文件 | 状态 | 描述 |
-|------|------|------|
-| `Architecture.md` | [已完成] | 架构设计文档 |
-| `API.md` | [已完成] | API设计文档 |
-| `Database.md` | [已完成] | 数据模型设计 |
-| `Security.md` | [已完成] | 安全设计文档 |
-| `UI.md` | [计划中] | UI设计文档 |
+- **技术栈**: HTML, JavaScript
+- **主要功能**: 当Docker无法拉取Nginx镜像时的备用方案
+- **服务器**: Python HTTP服务器
+- **端口**: 80
 
-### 4.2 使用指南 (`docs/guides/`)
+### 4.2 部署脚本 (deploy.ps1)
 
-| 文件 | 状态 | 描述 |
-|------|------|------|
-| `User.md` | [已完成] | 用户使用指南 |
-| `Development.md` | [已完成] | 开发指南 |
-| `Deployment.md` | [已完成] | 部署指南 |
-| `Testing.md` | [已完成] | 测试指南 |
+PowerShell脚本，用于管理应用的部署、启动和停止。支持以下命令：
+- `setup`: 设置环境
+- `start`: 启动应用
+- `stop`: 停止应用
+- `restart`: 重启应用
+- `logs`: 查看日志
+- `status`: 查看状态
+- `prune`: 清理资源
+- `static-frontend`: 启动静态前端服务器
 
-### 4.3 参考文档 (`docs/references/`)
+## 5. 状态标记
 
-| 文件 | 状态 | 描述 |
-|------|------|------|
-| `API.md` | [已完成] | API参考文档 |
-| `Config.md` | [计划中] | 配置参考 |
-
-### 4.4 项目文档 (`docs/project/`)
-
-| 文件 | 状态 | 描述 |
-|------|------|------|
-| `Structure.md` | [已完成] | 项目结构文档 |
-| `Issues.md` | [已完成] | 问题追踪 |
-| `Thread.md` | [计划中] | 任务进程文档 |
-| `Log.md` | [计划中] | 变更日志索引 |
-
-## 5. 部署脚本详细结构
-
-| 文件 | 状态 | 描述 |
-|------|------|------|
-| `deploy.ps1` | [已完成] | Windows PowerShell部署脚本，提供完整的系统管理功能 |
-| `deploy.sh` | [已完成] | Linux/MacOS Bash部署脚本，功能与PowerShell版本对应 |
-| `setup.bat` | [已完成] | Windows一键部署批处理文件，提供用户友好的部署界面 |
-| `Dockerfile.backend` | [已完成] | 后端Docker镜像构建配置 |
-| `Dockerfile.frontend` | [已完成] | 前端Docker镜像构建配置 |
-| `docker-compose.yml` | [已完成] | Docker Compose服务编排主配置 |
-| `docker-compose.override.yml` | [已完成] | 开发环境配置覆盖，增加开发时特性 |
-| `.env.example` | [已完成] | 环境变量示例配置，用于创建.env文件 |
-
-### 5.1 PowerShell部署脚本功能
-
-PowerShell部署脚本(`deploy.ps1`)提供以下功能：
-
-| 命令 | 描述 |
-|------|------|
-| `setup` | 初始设置环境和配置 |
-| `start` | 启动应用服务 |
-| `stop` | 停止应用服务 |
-| `restart` | 重启应用服务 |
-| `logs` | 查看应用日志 |
-| `status` | 查看应用状态 |
-| `update` | 更新应用(拉取最新代码并重建) |
-| `backup` | 备份数据 |
-| `restore` | 恢复数据 |
-| `prune` | 清理未使用的资源(镜像、容器、卷) |
-
-### 5.2 Windows一键部署批处理功能
-
-Windows一键部署批处理文件(`setup.bat`)提供以下功能：
-
-1. 检查系统要求(PowerShell、Docker)
-2. 检查并尝试启动Docker服务
-3. 设置环境(创建必要的目录、配置文件)
-4. 引导用户配置环境变量
-5. 启动应用
-6. 展示应用访问地址和管理命令
+- ✅ 后端API服务 - 正常运行
+- ✅ 静态前端备用方案 - 正常运行
+- ✅ Docker前端容器 - 正常运行（需要配置镜像加速器）
 
 ## 6. 模块依赖关系
 
@@ -288,4 +216,8 @@ Windows一键部署批处理文件(`setup.bat`)提供以下功能：
                 +-------------+
 ```
 
-核心模块与数据模块的依赖关系图，显示了系统主要组件间的交互。 
+核心模块与数据模块的依赖关系图，显示了系统主要组件间的交互。
+
+---
+
+[返回文档索引](../index.md) | [返回顶部](#问卷星自动化系统---项目结构)

@@ -1,210 +1,218 @@
 @echo off
-:: 设置控制台代码页为UTF-8
+:: Set console code page to UTF-8
 chcp 65001 >nul
 
-:: 启用命令扩展
+:: Enable command extensions
 verify on
 setlocal enableextensions
 
-:: 问卷星自动化系统本地部署脚本
-:: 作者: Ignorant-lu
-:: 版本: 2.5 - 调试版本
+:: WJX Automation System Local Deployment Script
+:: Author: Ignorant-lu
+:: Version: 2.6 - Fixed Port Conflict
 
-:: 设置标题
-title 问卷星自动化系统本地部署
+:: Set title
+title WJX Automation System Local Deployment
 
-:: 获取脚本目录
+:: Get script directory
 set "SCRIPT_DIR=%~dp0"
 cd /d "%SCRIPT_DIR%"
 
+:: Set ports (changed frontend port to avoid conflict with Docker)
+set BACKEND_PORT=5000
+set BACKEND_HOST=127.0.0.1
+set FRONTEND_PORT=5174
+
 echo ===============================================================
-echo              问卷星自动化系统本地部署 v2.5
+echo              WJX Automation System Local Setup v2.6
 echo ===============================================================
 echo.
-echo 本脚本将帮助您在本地环境中部署问卷星自动化系统。
+echo This script will help you set up the WJX Automation System locally.
 echo.
-echo 部署过程包括：
-echo  - 系统环境检查
-echo  - Python虚拟环境配置
-echo  - 依赖项安装
-echo  - 环境配置
-echo  - 服务启动
+echo The deployment process includes:
+echo  - System environment check
+echo  - Python virtual environment setup
+echo  - Dependencies installation
+echo  - Environment configuration
+echo  - Service startup
 echo.
 
-:: 创建临时文件用于命令输出
+:: Create temp file for command output
 set "TEMP_FILE=%TEMP%\setup_output.txt"
 if exist "%TEMP_FILE%" del "%TEMP_FILE%"
 
-:: 确认是否继续
-set /p confirm=是否继续部署？(y/N):
+:: Confirm to continue
+set /p confirm=Continue with deployment? (y/N):
 if /i not "%confirm%"=="y" (
-    echo 已取消部署。
+    echo Deployment cancelled.
     goto :eof
 )
 
-:: 检查系统要求
-echo 正在检查系统要求...
-echo [步骤 1/5] 检查必要组件...
+:: Check system requirements
+echo Checking system requirements...
+echo [Step 1/5] Checking components...
 
-:: 检查Python
-echo  - 检查Python...
+:: Check Python
+echo  - Checking Python...
 python --version > "%TEMP_FILE%" 2>&1
 if %errorlevel% neq 0 (
-    echo 错误：未找到Python
-    echo 请安装Python 3.9或更高版本：https://www.python.org/downloads/
+    echo Error: Python not found
+    echo Please install Python 3.9 or higher: https://www.python.org/downloads/
     type "%TEMP_FILE%"
     start https://www.python.org/downloads/
     pause
     exit /b 1
 )
 type "%TEMP_FILE%"
-echo   + Python检查通过
+echo   + Python check passed
 
-:: 检查pip
-echo  - 检查pip...
+:: Check pip
+echo  - Checking pip...
 pip --version > "%TEMP_FILE%" 2>&1
 if %errorlevel% neq 0 (
-    echo 错误：未找到pip
-    echo 请确保pip已随Python一起安装
+    echo Error: pip not found
+    echo Please ensure pip is installed with Python
     type "%TEMP_FILE%"
     pause
     exit /b 1
 )
 type "%TEMP_FILE%"
-echo   + pip检查通过
+echo   + pip check passed
 
-:: 检查Node.js
-echo  - 检查Node.js...
+:: Check Node.js
+echo  - Checking Node.js...
 node --version > "%TEMP_FILE%" 2>&1
 if %errorlevel% neq 0 (
-    echo 错误：未找到Node.js
-    echo 请安装Node.js 16或更高版本：https://nodejs.org/
+    echo Error: Node.js not found
+    echo Please install Node.js 16 or higher: https://nodejs.org/
     type "%TEMP_FILE%"
     start https://nodejs.org/
     pause
     exit /b 1
 )
 type "%TEMP_FILE%"
-echo   + Node.js检查通过
+echo   + Node.js check passed
 
-:: 检查npm
-echo  - 检查npm...
+:: Check npm
+echo  - Checking npm...
 call npm --version > "%TEMP_FILE%" 2>&1
 if %errorlevel% neq 0 (
-    echo 错误：未找到npm
-    echo 请确保npm已随Node.js一起安装
+    echo Error: npm not found
+    echo Please ensure npm is installed with Node.js
     type "%TEMP_FILE%"
     pause
     exit /b 1
 )
 type "%TEMP_FILE%"
-echo   + npm检查通过
+echo   + npm check passed
 
-echo 系统检查通过！
+echo System check passed!
 echo.
 
-:: 检查项目目录
-echo [步骤 2/5] 检查项目环境...
-echo  - 检查项目文件...
+:: Check project directory
+echo [Step 2/5] Checking project environment...
+echo  - Checking project files...
 
 if not exist "backend" (
-    echo 错误：不在项目根目录
-    echo 请在项目根目录（包含backend和frontend目录的目录）下运行此脚本
+    echo Error: Not in project root directory
+    echo Please run this script in the project root directory
     pause
     exit /b 1
 )
-echo   + 项目文件检查通过
+echo   + Project files check passed
 
-:: 创建必要的目录
+:: Create necessary directories
 if not exist "data" mkdir data
 if not exist "logs" mkdir logs
 if not exist "data\surveys" mkdir data\surveys
 if not exist "data\tasks" mkdir data\tasks
 if not exist "logs\api" mkdir logs\api
-echo   + 数据目录创建完成
+echo   + Data directories created
 
-:: 创建Python虚拟环境
-echo [步骤 3/5] 创建Python虚拟环境...
+:: Create Python virtual environment
+echo [Step 3/5] Creating Python virtual environment...
 
 set "VENV_CREATED=0"
 
 if exist "venv" (
-    set /p "RECREATE=检测到已存在的虚拟环境，是否重新创建？(y/N): "
+    set /p "RECREATE=Virtual environment exists. Recreate? (y/N): "
     if /i "%RECREATE%"=="y" (
-        echo 正在删除旧的虚拟环境...
+        echo Removing old virtual environment...
         rmdir /s /q venv
         set "VENV_CREATED=0"
     ) else (
-        echo   + 使用现有虚拟环境
+        echo   + Using existing virtual environment
         set "VENV_CREATED=1"
     )
 )
 
 if "%VENV_CREATED%"=="0" (
-    echo 正在创建虚拟环境...
+    echo Creating virtual environment...
     python -m venv venv
     if errorlevel 1 (
-        echo 错误：创建虚拟环境失败
+        echo Error: Failed to create virtual environment
         pause
         exit /b 1
     )
-    echo   + 虚拟环境创建完成
+    echo   + Virtual environment created
 )
 
-:: 安装后端依赖
-echo [步骤 4/5] 安装依赖...
-echo  - 安装后端依赖...
+:: Install backend dependencies
+echo [Step 4/5] Installing dependencies...
+echo  - Installing backend dependencies...
 
 call venv\Scripts\activate.bat
 pip install -r backend\requirements.txt
 if errorlevel 1 (
-    echo 错误：安装后端依赖失败
+    echo Error: Failed to install backend dependencies
     pause
     exit /b 1
 )
-echo   + 后端依赖安装完成
+echo   + Backend dependencies installed
 
-:: 安装前端依赖
-echo  - 安装前端依赖...
+:: Install frontend dependencies
+echo  - Installing frontend dependencies...
 cd frontend
 call npm install
 if errorlevel 1 (
-    echo 错误：安装前端依赖失败
+    echo Error: Failed to install frontend dependencies
     cd ..
     pause
     exit /b 1
 )
 
-:: 确保安装了vite
+:: Ensure vite is installed
 call npm install --save-dev vite @vitejs/plugin-vue
 if errorlevel 1 (
-    echo 错误：安装Vite失败
+    echo Error: Failed to install Vite
     cd ..
     pause
     exit /b 1
 )
-echo   + 前端依赖安装完成
+echo   + Frontend dependencies installed
 cd ..
 
-:: 启动服务
-echo [步骤 5/5] 启动服务...
-echo  - 启动后端服务...
-start "后端服务" cmd /k "call venv\Scripts\activate.bat && python backend\app.py"
-echo   + 后端服务已启动
+:: Start services
+echo [Step 5/5] Starting services...
+echo  - Starting backend service...
+start "WJX Backend API - %BACKEND_HOST%:%BACKEND_PORT%" cmd /k "call venv\Scripts\activate.bat && python backend\app.py"
+echo   + Backend service started
 
-echo  - 启动前端服务...
+echo  - Starting frontend service...
 cd frontend
-start "前端服务" cmd /k "npm run dev"
+:: Set PORT environment variable to use custom port
+start "WJX Frontend - %FRONTEND_PORT%" cmd /k "set PORT=%FRONTEND_PORT% && npm run dev"
 cd ..
-echo   + 前端服务已启动
+echo   + Frontend service started
 
 echo.
 echo ===============================================================
-echo 部署完成！服务正在启动...
+echo Setup completed! Services are starting...
 echo.
-echo 您可以通过以下地址访问应用：
-echo 前端界面：http://localhost:5173
-echo 后端API：http://localhost:5000
+echo You can access the application at:
+echo Frontend: http://localhost:%FRONTEND_PORT%
+echo Backend API: http://%BACKEND_HOST%:%BACKEND_PORT%
 echo.
-echo 按任意键退出...
-pause >nul 
+
+echo Press any key to open frontend in browser...
+pause >nul
+start http://localhost:%FRONTEND_PORT%

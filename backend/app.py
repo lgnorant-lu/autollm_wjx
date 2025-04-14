@@ -6,7 +6,7 @@ Date created:               2025/02/15
 Description:                问卷星自动化系统后端入口文件，提供Web API和核心功能
 ----------------------------------------------------------------
 
-Changed history:            
+Changed history:
                             2025/02/18: 添加日志配置，注册API蓝图，初始化目录结构
 ----------------------------------------------------------------
 """
@@ -24,8 +24,16 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE_DIR)
 
 # 确保必要的目录存在
-LOG_DIR = os.path.join(os.path.dirname(BASE_DIR), 'logs', 'api')
-DATA_DIR = os.path.join(BASE_DIR, 'data')
+# 在Docker环境中，日志目录应该是/app/logs
+if os.path.exists('/app'):
+    # Docker环境
+    LOG_DIR = os.path.join('/app', 'logs', 'api')
+    DATA_DIR = os.path.join('/app', 'data')
+else:
+    # 本地环境
+    LOG_DIR = os.path.join(os.path.dirname(BASE_DIR), 'logs', 'api')
+    DATA_DIR = os.path.join(BASE_DIR, 'data')
+
 SURVEYS_DIR = os.path.join(DATA_DIR, 'surveys')
 TASKS_DIR = os.path.join(DATA_DIR, 'tasks')
 
@@ -65,7 +73,7 @@ app.register_blueprint(config_bp, url_prefix='/api/config')
 def index():
     """
     API根路径，返回服务状态信息
-    
+
     Returns:
         JSON: 包含API名称、版本和状态的JSON响应
     """

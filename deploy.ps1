@@ -1,4 +1,4 @@
-# 问卷星自动化系统部署脚本 (Windows PowerShell版)
+﻿# 问卷星自动化系统部署脚本 (Windows PowerShell版)
 # 作者: Ignorant-lu
 # 描述: 用于在Windows环境下部署和管理问卷星自动化系统的PowerShell脚本
 
@@ -124,17 +124,27 @@ function Start-App {
     }
     
     # 根据环境模式启动
-    if ($ENV_MODE -eq "development") {
-        Write-ColorText "以开发模式启动..." "Yellow"
-        docker compose -f docker-compose.yml -f docker-compose.override.yml up -d
-    } else {
-        Write-ColorText "以生产模式启动..." "Green"
-        docker compose up -d
+    try {
+        if ($ENV_MODE -eq "development") {
+            Write-ColorText "以开发模式启动..." "Yellow"
+            docker compose -f docker-compose.yml -f docker-compose.override.yml up -d -ErrorAction Stop
+        } else {
+            Write-ColorText "以生产模式启动..." "Green"
+            docker compose up -d -ErrorAction Stop
+        }
+        
+        Write-ColorText "Docker Compose 启动命令已执行。" "Green"
+        Write-ColorText "请使用 'docker compose ps' 或 'docker ps' 检查容器状态。" "Yellow"
+        Write-ColorText "前端访问地址 (如果成功启动): http://localhost:$FRONTEND_PORT" "Yellow"
+        Write-ColorText "后端API地址 (如果成功启动): http://localhost:$BACKEND_PORT" "Yellow"
+
+    } catch {
+        Write-ColorText "错误: 启动应用时出错 (docker compose up -d 失败)" "Red"
+        Write-Error "错误详情: $($_.Exception.Message)" 
+        if ($_.ScriptStackTrace) { Write-Error "StackTrace: $($_.ScriptStackTrace)" }
+        if ($_.ErrorDetails) { Write-Error "ErrorDetails: $($_.ErrorDetails)" }
+        exit 1
     }
-    
-    Write-ColorText "应用启动成功" "Green"
-    Write-ColorText "前端访问地址: http://localhost:$FRONTEND_PORT" "Yellow"
-    Write-ColorText "后端API地址: http://localhost:$BACKEND_PORT" "Yellow"
 }
 
 # 停止应用

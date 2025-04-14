@@ -40,7 +40,7 @@
 
 ### 方式一: 一键部署 (推荐)
 
-1. 确保已安装 [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/) (注意: Docker Desktop与Docker本体不同，详见[Docker说明](docs/guides/Docker_Explanation.md))
+1. 确保已安装 [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/)
 2. 下载此项目到本地
 3. 双击运行 `setup.bat` 文件
 4. 按照提示完成安装和配置
