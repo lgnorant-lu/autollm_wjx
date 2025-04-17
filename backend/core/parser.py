@@ -25,6 +25,7 @@ import os
 import time
 import urllib3
 import logging
+from config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -161,26 +162,28 @@ def parse_survey(url):
         }
         
         # 将问卷数据保存到文件
-        output_path = save_questions(questions, url=url, survey_stats={"title": title})
-        if output_path:
-            logger.info(f"问卷 {survey_id} 解析完成，已保存到 {output_path}")
+        questions_file_path = save_questions(questions, url=url, survey_stats={"title": title})
+        if questions_file_path:
+            logger.info(f"问卷 {survey_id} 解析完成，已保存到 {questions_file_path}")
         else:
             logger.warning(f"问卷 {survey_id} 解析完成，但保存失败")
         
-        return survey_data
+        # 返回包含 survey_data 和 questions 文件路径的字典
+        return {"survey_data": survey_data, "questions_file_path": questions_file_path}
         
     except requests.exceptions.SSLError as e:
         logger.error(f"SSL错误: {e}", exc_info=True)
-        return {"error": f"SSL连接错误: {str(e)}", "id": extract_survey_id(url), "title": "未知标题", "questions": []}
+        # 返回错误时也包含基本信息
+        return {"error": f"SSL连接错误: {str(e)}", "survey_data": {"id": extract_survey_id(url), "title": "未知标题", "questions": []}, "questions_file_path": None}
     except requests.exceptions.ConnectionError as e:
         logger.error(f"连接错误: {e}", exc_info=True)
-        return {"error": f"连接错误: {str(e)}", "id": extract_survey_id(url), "title": "未知标题", "questions": []}
+        return {"error": f"连接错误: {str(e)}", "survey_data": {"id": extract_survey_id(url), "title": "未知标题", "questions": []}, "questions_file_path": None}
     except requests.exceptions.Timeout as e:
         logger.error(f"请求超时: {e}", exc_info=True)
-        return {"error": f"请求超时: {str(e)}", "id": extract_survey_id(url), "title": "未知标题", "questions": []}
+        return {"error": f"请求超时: {str(e)}", "survey_data": {"id": extract_survey_id(url), "title": "未知标题", "questions": []}, "questions_file_path": None}
     except Exception as e:
         logger.error(f"解析问卷时出错: {e}", exc_info=True)
-        return {"error": f"解析错误: {str(e)}", "id": extract_survey_id(url), "title": "未知标题", "questions": []}
+        return {"error": f"解析错误: {str(e)}", "survey_data": {"id": extract_survey_id(url), "title": "未知标题", "questions": []}, "questions_file_path": None}
 
 
 def extract_survey_id(url):
@@ -227,10 +230,10 @@ def save_questions(questions, output_path=None, url=None, survey_stats=None):
         if url:
             survey_id = extract_survey_id(url)
             timestamp = time.strftime("%Y%m%d_%H%M%S")
-            output_path = f"data/questions_{survey_id}_{timestamp}.json"
+            output_path = os.path.join(Config.DATA_DIR, f"questions_{survey_id}_{timestamp}.json")
         else:
             timestamp = time.strftime("%Y%m%d_%H%M%S")
-            output_path = f"data/questions_{timestamp}.json"
+            output_path = os.path.join(Config.DATA_DIR, f"questions_{timestamp}.json")
     
     # 确保输出一致的格式
     if isinstance(questions, list):

@@ -1,4 +1,4 @@
-# 基础镜像（区分开发与生产）
+﻿# 基础镜像（区分开发与生产）
 ARG ENV_MODE=production
 FROM python:3.9-slim AS base
 
@@ -36,21 +36,23 @@ RUN groupadd -r wjxuser && useradd -r -g wjxuser wjxuser
 # 拷贝依赖文件
 COPY ./backend/requirements/ /app/backend/requirements/
 COPY ./backend/requirements.txt /app/backend/
-RUN pip install --no-cache-dir -r backend/requirements.txt
+RUN pip install --no-cache-dir -r backend/requirements.txt \
+    && pip install --no-cache-dir -r backend/requirements/requirements-prod.txt
 
 # 拷贝应用代码
 COPY ./backend .
 
 # 创建必要的数据和日志目录
 RUN mkdir -p /app/data /app/logs && \
-    chown -R wjxuser:wjxuser /app
+    chown -R wjxuser:wjxuser /app && \
+    chmod -R 777 /app/data /app/logs
+
+# 创建必要的子目录
+RUN mkdir -p /app/data/surveys /app/data/tasks /app/data/archive /app/logs/api && \
+    chmod -R 777 /app/data/surveys /app/data/tasks /app/data/archive /app/logs/api
 
 # 切换到非root用户
 USER wjxuser
-
-# 健康检查
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:5000/ || exit 1
 
 # 使用gunicorn启动应用（优化worker配置）
 CMD ["gunicorn", "app:app", "-b", "0.0.0.0:5000", "--workers=4", "--worker-class=gthread", "--threads=2", "--timeout=60", "--access-logfile=-", "--error-logfile=-"]

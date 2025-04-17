@@ -1,6 +1,6 @@
 # 问卷星自动化系统中文文档
 
-[返回主页](../../README.md) | [快速入门](../../QUICK_START.md) | [部署指南](../guides/Deployment.md) | [开发指南](../guides/Development.md)
+[返回主页](../../README.md) | [文档索引](../index.md) | [快速入门](../guides/QUICK_START.md) | [部署指南](../guides/Deployment.md)
 
 本目录包含问卷星自动化系统的中文技术文档，主要面向开发者和系统维护人员。
 
@@ -30,6 +30,8 @@
 
 系统的英文文档位于上级目录中，包括：
 - [部署指南](../guides/Deployment.md) - 如何部署系统
+- [Docker部署完整指南](../guides/Docker_Deployment_Guide.md) - Docker部署的完整流程和问题解决
+- [Docker说明](../guides/Docker_Explanation.md) - Docker Desktop与Docker的关系说明
 - [开发指南](../guides/Development.md) - 如何进行开发
 - [测试指南](../guides/Testing.md) - 如何进行测试
 - [用户指南](../guides/User.md) - 系统使用说明
@@ -53,4 +55,4 @@
 
 ---
 
-[返回顶部](#问卷星自动化系统中文文档) | [返回主页](../../README.md) | [快速入门](../../QUICK_START.md)
+[返回顶部](#问卷星自动化系统中文文档) | [返回主页](../../README.md) | [文档索引](../index.md) | [快速入门](../guides/QUICK_START.md)

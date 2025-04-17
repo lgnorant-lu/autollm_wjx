@@ -10,6 +10,7 @@ import json
 import random
 import time
 import logging
+from core.umid_token import get_umid_token  # 添加导入
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -61,25 +62,24 @@ class AliyunVerification:
         return f"{int(time.time()*1000)}:{random.random()}"
     
     def generate_umid_tokens(self):
-        """生成umidToken"""
-        url = self.umidToken_url
-        headers = self.headers
-        cookies = {
-            # 'cbc': 'T2gAttygTsc0rCuarHtJVmCHF_is8fKJ8Ivqvt4MLVGkVDn9x9QBAwv-2helD52T0Gs=',
-            # 'umdata_': 'T2gAENWb_5pVBvXIU1l0dXDp7wxNkc-NyrtDItKZ4C9MFXtgHw4zoiw6wc1oZD_Zqts=',
-        }
-        params = {
-            'data': '107!f09WWybmfQ6f583tWPJqTF8G9UNP48D5x7ofJ/oLzCaSOd+UGQs09zJSfUjdvGCRGPYmAiAp5/ihcsxGPWCNSuP3Nnd8rIwLffxu1COL6Kz+jkESKuTTy4jJVdvdySS5/5DtaxDE6e4aQ/FjfNlktJJi6PPXwdt6eAX8XfqHFxEFerKPfCeqWPG3Emtpp/4Q5SGYx/KfWSjQ5Hp280YxWP0axWnHfVMYhROfffUO/gWFDRdw5jhmpr+mxA5AS1Se8Kw1+Va3EV5ssWqnwimF2JUOxfNxohWJuuWs0iHQRIhCpqCKZGXw3hgmxz6KERKkdNBCFx0DMDDRvVBfLhzBqRxIQk7Du5HYkUmPdrh0wdU8bB7QtQIGc0Aftp9QOpDbEb3nEE4YIsX1QiMzLdrTam4ChaZfCwDzWlRByHtvUqhPwjRn+OCo69Y+waCFLmEa6sTV7QF46iJhV5C5WoTFghjFrrmrkw6cIaGThdjCfhU/H3G99K+Mtzz0UDhT37CtNQQm5PA++ytE+DgtIXMqAZXqxR78KI6m4iFC3CKaO9iy3e/oPpNSOPgjMifMV05NVqFCTIarWw0WnXsaXTIk0klNwCEYfuoVB5vA7w9MJNY2qGGFHOKkIu/U0L3RKmfaTDHNpoK2BCmBX7zrSyNWM3m3VlHYCIRHJ3KQF/CDiHagJnSG2SUUgzG=',
-            'xa': 'FFFF00000000016770EE',
-            'xt': '',
-            'efy': '1',
-        }
-
-        response = requests.get(url=url,headers=headers,cookies=cookies,params=params).json()
-
-        print(f'response:::', response)
-
-        return response
+        """
+        生成umidToken，使用umid_token模块的功能
+        
+        Returns:
+            dict: 包含umidToken的字典
+        """
+        logger.debug("开始生成UMID Token")
+        
+        # 使用新的umid_token模块获取token
+        token_result = get_umid_token()
+        
+        # 检查是否成功获取token
+        if "error" in token_result:
+            logger.error(f"获取UMID Token失败: {token_result['error']}")
+            return {"success": False, "error": token_result["error"]}
+        
+        logger.debug(f"成功获取UMID Token")
+        return {"success": True, "data": token_result}
 
 
 

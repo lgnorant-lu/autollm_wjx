@@ -9,6 +9,7 @@ Description:                任务管理服务，提供问卷任务的创建、�
 Changed history:            
                             2025/02/22: 添加任务状态实时监控功能
                             2025/02/25: 增强任务并发处理能力
+                            2025/04/17: 增强索引文件读写的鲁棒性
 ----------------------------------------------------------------
 """
 
@@ -19,6 +20,7 @@ import uuid
 import logging
 import requests
 import threading
+import shutil
 from enum import Enum
 from config import Config
 from services.survey_service import SurveyService
@@ -40,15 +42,14 @@ class TaskService:
         
         设置任务存储目录和相关服务
         """
-        self.config = Config()
         self.survey_service = SurveyService()
         
-        # 任务目录
-        self.tasks_dir = os.path.join(self.config.DATA_DIR, 'tasks')
+        # 任务目录 - 使用 Config 类属性
+        self.tasks_dir = Config.TASKS_DIR 
         os.makedirs(self.tasks_dir, exist_ok=True)
         
-        # 任务索引文件
-        self.index_file = os.path.join(self.config.DATA_DIR, 'task_index.json')
+        # 任务索引文件 - 使用 Config 类属性
+        self.index_file = Config.TASK_INDEX_FILE
         
         # 加载任务索引
         self.index = self._load_index()
@@ -61,34 +62,95 @@ class TaskService:
     
     def _load_index(self):
         """
-        加载任务索引
+        加载任务索引 (增强鲁棒性)
         
-        从索引文件中读取任务列表
+        从索引文件中读取任务列表，失败时尝试备份文件
         """
-        try:
-            if os.path.exists(self.index_file):
-                with open(self.index_file, 'r', encoding='utf-8') as f:
+        index_file = self.index_file
+        backup_file = index_file + ".bak"
+        loaded_index = None
+
+        # 1. 尝试加载主索引文件
+        if os.path.exists(index_file):
+            try:
+                with open(index_file, 'r', encoding='utf-8') as f:
                     content = f.read().strip()
                     if content:
-                        return json.loads(content)
+                        loaded_index = json.loads(content)
+                        logger.info(f"成功加载主任务索引文件: {index_file}")
                     else:
-                        logger.warning(f"索引文件 {self.index_file} 为空，创建新索引")
-                        return []
-            else:
-                logger.info(f"索引文件不存在，创建新索引: {self.index_file}")
-                return []
-        except Exception as e:
-            logger.error(f"加载任务索引失败: {e}")
+                        logger.warning(f"主任务索引文件 {index_file} 为空")
+                        # 文件存在但为空，可能也需要尝试备份
+            except json.JSONDecodeError as e:
+                logger.error(f"主任务索引文件 {index_file} JSON 解析错误: {e}")
+            except Exception as e:
+                logger.error(f"加载主任务索引文件 {index_file} 时发生未知错误: {e}", exc_info=True)
+
+        # 2. 如果主文件加载失败或为空，尝试加载备份文件
+        if loaded_index is None and os.path.exists(backup_file):
+            logger.info(f"尝试加载备份任务索引文件: {backup_file}")
+            try:
+                with open(backup_file, 'r', encoding='utf-8') as f:
+                    content = f.read().strip()
+                    if content:
+                        loaded_index = json.loads(content)
+                        logger.info(f"成功从备份文件加载任务索引: {backup_file}")
+                        # 考虑用备份恢复主文件
+                        try:
+                            shutil.copy2(backup_file, index_file)
+                            logger.info(f"已使用备份文件恢复主任务索引文件: {index_file}")
+                        except Exception as copy_e:
+                            logger.error(f"从备份恢复主任务索引文件失败: {copy_e}")
+                    else:
+                        logger.warning(f"备份任务索引文件 {backup_file} 为空")
+            except json.JSONDecodeError as e:
+                logger.error(f"备份任务索引文件 {backup_file} JSON 解析错误: {e}")
+            except Exception as e:
+                logger.error(f"加载备份任务索引文件 {backup_file} 时发生未知错误: {e}", exc_info=True)
+
+        # 3. 如果都失败，初始化为空列表
+        if loaded_index is None:
+            logger.warning(f"主任务索引和备份索引均加载失败或为空，创建新索引")
             return []
+        else:
+            return loaded_index
     
     def _save_index(self):
         """
-        保存任务索引
+        保存任务索引 (增强鲁棒性 - 原子写入)
         
-        将任务列表写入索引文件
+        将任务列表写入索引文件，使用临时文件和备份机制
         """
-        with open(self.index_file, 'w', encoding='utf-8') as f:
-            json.dump(self.index, f, ensure_ascii=False, indent=2)
+        index_file = self.index_file
+        backup_file = index_file + ".bak"
+        temp_file = index_file + ".tmp"
+
+        try:
+            # 1. 将当前索引写入临时文件
+            with open(temp_file, 'w', encoding='utf-8') as f:
+                json.dump(self.index, f, ensure_ascii=False, indent=2)
+
+            # 2. 备份原文件（如果存在）
+            if os.path.exists(index_file):
+                try:
+                    shutil.move(index_file, backup_file) # 使用 move 比 copy 更原子
+                    logger.debug(f"已备份旧任务索引文件到: {backup_file}")
+                except Exception as backup_e:
+                    # 如果备份失败，可能磁盘空间不足或权限问题，仍然尝试继续替换
+                    logger.warning(f"备份任务索引文件失败: {backup_e}. 尝试直接替换...")
+
+            # 3. 将临时文件重命名为正式文件
+            shutil.move(temp_file, index_file)
+            logger.debug(f"任务索引已成功保存到: {index_file}")
+
+        except Exception as e:
+            logger.error(f"保存任务索引文件失败: {e}", exc_info=True)
+            # 尝试清理临时文件
+            if os.path.exists(temp_file):
+                try:
+                    os.remove(temp_file)
+                except Exception as clean_e:
+                    logger.error(f"清理临时任务索引文件失败: {clean_e}")
     
     def _run_task(self, task_id, task_data):
         """
@@ -112,7 +174,7 @@ class TaskService:
             self._update_task_status(task_id, 'running')
             
             # 创建提交器
-            submitter = WJXSubmitter(survey_url=survey['url'])
+            submitter = WJXSubmitter(survey_url=survey['url'], survey_config=survey)
             
             # 计算问卷复杂度
             survey_complexity = 5  # 默认中等复杂度
@@ -275,26 +337,27 @@ class TaskService:
         survey = self.survey_service.get_survey_by_id(task_data['survey_id'])
         
         if not survey:
-            # 尝试重新解析问卷
-            try:
-                url = None
-                # 检查是否已经有完整URL
-                if 'url' in task_data and task_data['url']:
-                    url = task_data['url']
-                    # 确保URL有正确的协议
-                    if not url.startswith('http'):
-                        url = 'https://' + url
-                else:
-                    # 构建默认URL
-                    url = f"https://www.wjx.cn/vm/{task_data['survey_id']}.aspx"
-                
-                logger.info(f"尝试重新解析问卷: {url}")
-                survey = self.survey_service.parse_survey(url)
-                if not survey:
-                    raise ValueError(f"问卷不存在 {task_data['survey_id']}")
-            except Exception as e:
-                logger.error(f"重新解析问卷失败: {e}")
-                raise ValueError(f"问卷不存在 {task_data['survey_id']}")
+            # # 尝试重新解析问卷 # 注释掉或删除这部分
+            # try:
+            #     url = None
+            #     # 检查是否已经有完整URL
+            #     if 'url' in task_data and task_data['url']:
+            #         url = task_data['url']
+            #         # 确保URL有正确的协议
+            #         if not url.startswith('http'):
+            #             url = 'https://' + url
+            #     else:
+            #         # 构建默认URL
+            #         url = f"https://www.wjx.cn/vm/{task_data['survey_id']}.aspx"
+            #     
+            #     logger.info(f"尝试重新解析问卷: {url}")
+            #     survey = self.survey_service.parse_survey(url)
+            #     if not survey:
+            #         raise ValueError(f"问卷不存在 {task_data['survey_id']}")
+            # except Exception as e:
+            #     logger.error(f"重新解析问卷失败: {e}")
+            #     raise ValueError(f"问卷不存在 {task_data['survey_id']}")
+            raise ValueError(f"问卷不存在或加载失败: {task_data['survey_id']}，请确保在创建任务前已成功解析问卷。")
         
         # 创建任务数据
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -463,7 +526,7 @@ class TaskService:
                 return
             
             # 创建提交器实例
-            submitter = WJXSubmitter(survey_url=survey['url'])
+            submitter = WJXSubmitter(survey_url=survey['url'], survey_config=survey)
             
             # 任务执行参数
             total = task_data.get('count', 1)

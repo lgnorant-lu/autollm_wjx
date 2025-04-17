@@ -1,8 +1,11 @@
 @echo off
+:: 设置控制台代码页为 UTF-8
+chcp 65001 >nul
+
 echo 创建问卷星自动化系统的Python虚拟环境...
 
 :: 设置变量
-set VENV_NAME=wjx_venv
+set VENV_NAME=venv
 set REQUIREMENTS_FILE=requirements.txt
 
 :: 检查Python是否已安装
@@ -43,4 +46,4 @@ echo 虚拟环境设置完成！
 echo 要激活虚拟环境，请运行: call %VENV_NAME%\Scripts\activate.bat
 echo.
 
-exit /b 0 
+exit /b 0

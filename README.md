@@ -6,8 +6,9 @@
 
 | 文档类别 | 文档链接 | 说明 |
 |------------|------------|------|
-| **快速入门** | [快速入门指南](QUICK_START.md) | 适合新手用户的快速入门指南 |
-| **部署指南** | [部署指南](docs/guides/Deployment.md) | 包含一键式部署、Docker部署和本地直接运行等多种方式 |
+| **文档索引** | [文档索引](docs/index.md) | 所有文档的索引页面 |
+| **快速入门** | [快速入门指南](docs/guides/QUICK_START.md) | 适合新手用户的快速入门指南 |
+| **部署指南** | [部署指南](docs/guides/Deployment.md)<br>[完整Docker部署指南](docs/guides/Docker_Deployment_Guide.md)<br>[关于Docker的说明](docs/guides/Docker_Explanation.md) | 包含一键式部署、Docker部署和本地直接运行等多种方式 |
 | **开发指南** | [开发指南](docs/guides/Development.md) | 适合开发者的二次开发指南 |
 | **测试指南** | [测试指南](docs/guides/Testing.md) | 说明如何进行单元测试和集成测试 |
 | **用户指南** | [用户指南](docs/guides/User.md) | 说明系统的使用方法 |
@@ -40,9 +41,9 @@
 
 ### 方式一: 一键部署 (推荐)
 
-1. 确保已安装 [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/) (注意: Docker Desktop与Docker本体不同，详见[Docker说明](docs/guides/Docker_Explanation.md))
+1. 确保已安装 [Docker Desktop for Windows](https://docs.docker.com/desktop/install/windows-install/)
 2. 下载此项目到本地
-3. 双击运行 `setup.bat` 文件
+3. 打开PowerShell或命令提示符，运行 `setup.ps1` 脚本
 4. 按照提示完成安装和配置
 5. 访问 `http://localhost:80` (或配置的其他端口) 打开系统界面
 
@@ -274,6 +275,12 @@ A: 请检查以下几点:
 - 端口是否被占用，可在 `.env` 文件中修改端口配置
 - 防火墙是否允许相应端口的访问
 
+### Q: 前端页面无法加载外部资源（如CDN上的样式表）
+A: 这可能是nginx配置中的Content Security Policy (CSP)头部设置不正确。请参考[完整Docker部署指南](docs/guides/Docker_Deployment_Guide.md#31-修复content-security-policy-csp问题)中的解决方法。
+
+### Q: 容器显示为"unhealthy"状态
+A: 这可能是由于健康检查配置问题导致的。请参考[完整Docker部署指南](docs/guides/Docker_Deployment_Guide.md#32-修复容器健康检查问题)中的解决方法。
+
 ### Q: 无法解析问卷
 A: 请检查:
 - 问卷链接格式是否正确
@@ -302,6 +309,8 @@ docker-compose ps
 # 查看详细日志
 docker-compose logs
 ```
+
+如果遇到网络问题，无法从Docker Hub拉取镜像，请参考[关于Docker的说明](docs/guides/Docker_Explanation.md#常见问题)中的镜像加速器配置。
 
 ### 网络连接问题
 
