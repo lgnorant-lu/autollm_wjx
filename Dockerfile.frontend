@@ -17,8 +17,8 @@ CMD ["npm", "run", "dev", "--", "--host"]  # 启用所有网络接口访问
 FROM base AS build
 WORKDIR /app
 COPY ./frontend/package*.json ./
-# 使用生产环境依赖安装
-RUN npm install --production
+# 完全重新安装所有依赖，确保在Linux环境下安装正确的平台版本
+RUN rm -rf node_modules package-lock.json && npm install
 COPY ./frontend .
 # 构建应用
 RUN npm run build
@@ -26,7 +26,7 @@ RUN npm run build
 # 生产阶段 - 使用Nginx服务静态文件
 FROM nginx:stable-alpine AS production
 # 复制自定义Nginx配置
-COPY ./frontend/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY ./frontend/nginx/default.conf.nobom /etc/nginx/conf.d/default.conf
 # 复制构建结果
 COPY --from=build /app/dist /usr/share/nginx/html
 # 复制环境变量文件
