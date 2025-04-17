@@ -1,274 +1,218 @@
 @echo off
-:: 设置控制台代码页为UTF-8
+:: Set console code page to UTF-8
 chcp 65001 >nul
 
-:: 问卷星自动化系统本地部署一键式脚本
-:: 作者: Ignorant-lu
-:: 描述: 用于在Windows环境下快速部署问卷星自动化系统（本地直接运行版）
-:: 版本: 1.1
+:: Enable command extensions
+verify on
+setlocal enableextensions
 
-setlocal enabledelayedexpansion
-title 问卷星自动化系统本地部署
+:: WJX Automation System Local Deployment Script
+:: Author: Ignorant-lu
+:: Version: 2.6 - Fixed Port Conflict
 
-:: 颜色定义
-set "CYAN=[36m"
-set "GREEN=[32m"
-set "YELLOW=[33m"
-set "RED=[31m"
-set "BLUE=[34m"
-set "MAGENTA=[35m"
-set "NC=[0m"
+:: Set title
+title WJX Automation System Local Deployment
 
-echo %CYAN%=======================================================%NC%
-echo %CYAN%        问卷星自动化系统本地部署一键式脚本 v1.0           %NC%
-echo %CYAN%=======================================================%NC%
+:: Get script directory
+set "SCRIPT_DIR=%~dp0"
+cd /d "%SCRIPT_DIR%"
+
+:: Set ports (changed frontend port to avoid conflict with Docker)
+set BACKEND_PORT=5000
+set BACKEND_HOST=127.0.0.1
+set FRONTEND_PORT=5174
+
+echo ===============================================================
+echo              WJX Automation System Local Setup v2.6
+echo ===============================================================
 echo.
-echo %BLUE%本脚本将帮助您在本地环境中直接运行问卷星自动化系统，无需Docker。%NC%
-echo %BLUE%适合开发者或不想使用Docker的用户。%NC%
+echo This script will help you set up the WJX Automation System locally.
 echo.
-echo %YELLOW%部署过程将执行以下操作：%NC%
-echo  - 检查系统环境和必要组件
-echo  - 创建Python虚拟环境
-echo  - 安装后端和前端依赖
-echo  - 配置环境变量
-echo  - 启动应用服务
+echo The deployment process includes:
+echo  - System environment check
+echo  - Python virtual environment setup
+echo  - Dependencies installation
+echo  - Environment configuration
+echo  - Service startup
 echo.
 
-:: 确认是否继续
-set /p confirm=是否继续部署过程？(y/N):
+:: Create temp file for command output
+set "TEMP_FILE=%TEMP%\setup_output.txt"
+if exist "%TEMP_FILE%" del "%TEMP_FILE%"
+
+:: Confirm to continue
+set /p confirm=Continue with deployment? (y/N):
 if /i not "%confirm%"=="y" (
-    echo %YELLOW%已取消部署过程。%NC%
+    echo Deployment cancelled.
     goto :eof
 )
 
-:: 检查系统要求
-echo %CYAN%正在检查系统要求...%NC%
-echo %MAGENTA%[步骤 1/5] 检查必要组件...%NC%
+:: Check system requirements
+echo Checking system requirements...
+echo [Step 1/5] Checking components...
 
-:: 检查Python
-echo  - 检查Python...
-python --version >nul 2>nul
+:: Check Python
+echo  - Checking Python...
+python --version > "%TEMP_FILE%" 2>&1
 if %errorlevel% neq 0 (
-    echo %RED%错误: 未找到Python%NC%
-    echo %YELLOW%请安装Python 3.9或更高版本: https://www.python.org/downloads/%NC%
+    echo Error: Python not found
+    echo Please install Python 3.9 or higher: https://www.python.org/downloads/
+    type "%TEMP_FILE%"
     start https://www.python.org/downloads/
     pause
     exit /b 1
-) else (
-    for /f "tokens=2" %%a in ('python --version 2^>^&1') do set "python_version=%%a"
-    echo %GREEN%  ✔ Python !python_version! 已安装%NC%
 )
+type "%TEMP_FILE%"
+echo   + Python check passed
 
-:: 检查pip
-echo  - 检查pip...
-pip --version >nul 2>nul
+:: Check pip
+echo  - Checking pip...
+pip --version > "%TEMP_FILE%" 2>&1
 if %errorlevel% neq 0 (
-    echo %RED%错误: 未找到pip%NC%
-    echo %YELLOW%请确保pip已安装，通常随Python一起安装%NC%
+    echo Error: pip not found
+    echo Please ensure pip is installed with Python
+    type "%TEMP_FILE%"
     pause
     exit /b 1
-) else (
-    echo %GREEN%  ✔ pip已安装%NC%
 )
+type "%TEMP_FILE%"
+echo   + pip check passed
 
-:: 检查Node.js
-echo  - 检查Node.js...
-node --version >nul 2>nul
+:: Check Node.js
+echo  - Checking Node.js...
+node --version > "%TEMP_FILE%" 2>&1
 if %errorlevel% neq 0 (
-    echo %RED%错误: 未找到Node.js%NC%
-    echo %YELLOW%请安装Node.js 16或更高版本: https://nodejs.org/%NC%
+    echo Error: Node.js not found
+    echo Please install Node.js 16 or higher: https://nodejs.org/
+    type "%TEMP_FILE%"
     start https://nodejs.org/
     pause
     exit /b 1
-) else (
-    :: 直接获取版本信息，避免使用for命令解析
-    node --version > "%TEMP%\node_version.txt"
-    set /p node_version=<"%TEMP%\node_version.txt"
-    del "%TEMP%\node_version.txt"
-    echo %GREEN%  ✔ Node.js %node_version% 已安装%NC%
 )
+type "%TEMP_FILE%"
+echo   + Node.js check passed
 
-:: 检查npm
-echo  - 检查npm...
-npm --version >nul 2>nul
+:: Check npm
+echo  - Checking npm...
+call npm --version > "%TEMP_FILE%" 2>&1
 if %errorlevel% neq 0 (
-    echo %RED%错误: 未找到npm%NC%
-    echo %YELLOW%请确保npm已安装，通常随Node.js一起安装%NC%
+    echo Error: npm not found
+    echo Please ensure npm is installed with Node.js
+    type "%TEMP_FILE%"
     pause
     exit /b 1
-) else (
-    :: 直接获取版本信息，避免使用for命令解析
-    npm --version > "%TEMP%\npm_version.txt"
-    set /p npm_version=<"%TEMP%\npm_version.txt"
-    del "%TEMP%\npm_version.txt"
-    echo %GREEN%  ✔ npm %npm_version% 已安装%NC%
 )
+type "%TEMP_FILE%"
+echo   + npm check passed
 
-echo %GREEN%系统检查通过！%NC%
+echo System check passed!
 echo.
 
-:: 检查当前目录是否为项目根目录
-echo %MAGENTA%[步骤 2/5] 检查项目环境...%NC%
-echo  - 检查项目文件...
+:: Check project directory
+echo [Step 2/5] Checking project environment...
+echo  - Checking project files...
 
 if not exist "backend" (
-    echo %RED%错误: 当前目录不是项目根目录%NC%
-    echo %YELLOW%请将此脚本放在项目根目录（包含backend和frontend目录的目录）下运行。%NC%
+    echo Error: Not in project root directory
+    echo Please run this script in the project root directory
     pause
     exit /b 1
-) else (
-    echo %GREEN%  ✔ 项目文件检查通过%NC%
 )
+echo   + Project files check passed
 
-:: 创建Python虚拟环境
-echo %MAGENTA%[步骤 3/5] 创建Python虚拟环境...%NC%
+:: Create necessary directories
+if not exist "data" mkdir data
+if not exist "logs" mkdir logs
+if not exist "data\surveys" mkdir data\surveys
+if not exist "data\tasks" mkdir data\tasks
+if not exist "logs\api" mkdir logs\api
+echo   + Data directories created
+
+:: Create Python virtual environment
+echo [Step 3/5] Creating Python virtual environment...
+
+set "VENV_CREATED=0"
 
 if exist "venv" (
-    echo %YELLOW%检测到已存在的虚拟环境，是否重新创建？(y/N):%NC%
-    set /p recreate_venv=
-    if /i "%recreate_venv%"=="y" (
-        echo %CYAN%正在删除旧的虚拟环境...%NC%
+    set /p "RECREATE=Virtual environment exists. Recreate? (y/N): "
+    if /i "%RECREATE%"=="y" (
+        echo Removing old virtual environment...
         rmdir /s /q venv
-        echo %CYAN%正在创建新的虚拟环境...%NC%
-        python -m venv venv
-        echo %GREEN%  ✔ 虚拟环境已重新创建%NC%
+        set "VENV_CREATED=0"
     ) else (
-        echo %GREEN%  ✔ 使用现有虚拟环境%NC%
+        echo   + Using existing virtual environment
+        set "VENV_CREATED=1"
     )
-) else (
-    echo %CYAN%正在创建虚拟环境...%NC%
-    python -m venv venv
-    echo %GREEN%  ✔ 虚拟环境已创建%NC%
 )
 
-:: 安装后端依赖
-echo %MAGENTA%[步骤 4/5] 安装依赖...%NC%
-echo  - 安装后端依赖...
+if "%VENV_CREATED%"=="0" (
+    echo Creating virtual environment...
+    python -m venv venv
+    if errorlevel 1 (
+        echo Error: Failed to create virtual environment
+        pause
+        exit /b 1
+    )
+    echo   + Virtual environment created
+)
+
+:: Install backend dependencies
+echo [Step 4/5] Installing dependencies...
+echo  - Installing backend dependencies...
 
 call venv\Scripts\activate.bat
-pip install -r requirements.txt
-if %errorlevel% neq 0 (
-    echo %RED%错误: 安装后端依赖失败%NC%
+pip install -r backend\requirements.txt
+if errorlevel 1 (
+    echo Error: Failed to install backend dependencies
     pause
     exit /b 1
-) else (
-    echo %GREEN%  ✔ 后端依赖安装完成%NC%
 )
+echo   + Backend dependencies installed
 
-:: 安装前端依赖
-echo  - 安装前端依赖...
+:: Install frontend dependencies
+echo  - Installing frontend dependencies...
 cd frontend
-npm install
-if %errorlevel% neq 0 (
-    echo %RED%错误: 安装前端依赖失败%NC%
+call npm install
+if errorlevel 1 (
+    echo Error: Failed to install frontend dependencies
     cd ..
     pause
     exit /b 1
-) else (
-    echo %GREEN%  ✔ 前端依赖安装完成%NC%
+)
+
+:: Ensure vite is installed
+call npm install --save-dev vite @vitejs/plugin-vue
+if errorlevel 1 (
+    echo Error: Failed to install Vite
     cd ..
+    pause
+    exit /b 1
 )
+echo   + Frontend dependencies installed
+cd ..
 
-:: 配置环境变量
-echo %MAGENTA%[步骤 5/5] 配置环境变量...%NC%
+:: Start services
+echo [Step 5/5] Starting services...
+echo  - Starting backend service...
+start "WJX Backend API - %BACKEND_HOST%:%BACKEND_PORT%" cmd /k "call venv\Scripts\activate.bat && python backend\app.py"
+echo   + Backend service started
 
-if exist ".env" (
-    echo %YELLOW%检测到.env文件，是否需要编辑？(y/N):%NC%
-    set /p edit_env=
-    if /i "%edit_env%"=="y" (
-        echo %CYAN%正在打开.env文件进行编辑...%NC%
-        notepad .env
-        echo %GREEN%  ✔ 环境变量已编辑%NC%
-    ) else (
-        echo %GREEN%  ✔ 使用现有环境变量%NC%
-    )
-) else (
-    echo %CYAN%未找到.env文件，正在创建...%NC%
-    copy .env.example .env
-    if %errorlevel% neq 0 (
-        echo %YELLOW%未找到.env.example文件，创建默认.env文件...%NC%
-        (
-            echo # LLM API配置
-            echo LLM_PROVIDER=openai
-            echo LLM_API_KEY=your_api_key_here
-            echo LLM_MODEL=gpt-3.5-turbo
-            echo.
-            echo # 环境配置
-            echo FLASK_ENV=development
-            echo LOG_LEVEL=DEBUG
-            echo.
-            echo # 端口配置
-            echo BACKEND_PORT=5000
-            echo FRONTEND_PORT=8080
-        ) > .env
-    )
-    echo %YELLOW%请编辑.env文件设置您的API密钥和其他配置%NC%
-    notepad .env
-    echo %GREEN%  ✔ 环境变量已配置%NC%
-)
+echo  - Starting frontend service...
+cd frontend
+:: Set PORT environment variable to use custom port
+start "WJX Frontend - %FRONTEND_PORT%" cmd /k "set PORT=%FRONTEND_PORT% && npm run dev"
+cd ..
+echo   + Frontend service started
 
 echo.
-echo %CYAN%=======================================================%NC%
-echo %GREEN%✓✓✓ 本地环境配置完成！✓✓✓%NC%
-echo %CYAN%=======================================================%NC%
+echo ===============================================================
+echo Setup completed! Services are starting...
+echo.
+echo You can access the application at:
+echo Frontend: http://localhost:%FRONTEND_PORT%
+echo Backend API: http://%BACKEND_HOST%:%BACKEND_PORT%
 echo.
 
-:: 询问是否启动应用
-echo %CYAN%是否立即启动应用？(Y/n):%NC%
-set /p start_now=
-if /i not "%start_now%"=="n" (
-    echo %CYAN%正在启动应用...%NC%
-    echo %YELLOW%这将打开两个新的命令行窗口，分别运行前端和后端服务%NC%
-
-    :: 启动后端
-    start cmd /k "title 问卷星自动化系统-后端 & echo 正在启动后端服务... & call venv\Scripts\activate.bat & cd backend & python app.py"
-
-    :: 启动前端
-    start cmd /k "title 问卷星自动化系统-前端 & echo 正在启动前端服务... & cd frontend & npm run serve"
-
-    echo %GREEN%  ✔ 应用已启动%NC%
-
-    :: 获取端口信息
-    for /f "tokens=1,* delims==" %%a in (.env) do (
-        if "%%a"=="FRONTEND_PORT" set FRONTEND_PORT=%%b
-        if "%%a"=="BACKEND_PORT" set BACKEND_PORT=%%b
-    )
-
-    if not defined FRONTEND_PORT set FRONTEND_PORT=8080
-    if not defined BACKEND_PORT set BACKEND_PORT=5000
-
-    set FRONTEND_PORT=!FRONTEND_PORT: =!
-    set BACKEND_PORT=!BACKEND_PORT: =!
-
-    echo %MAGENTA%应用访问地址:%NC%
-    echo %GREEN%  ✔ 前端界面: %YELLOW%http://localhost:!FRONTEND_PORT!%NC%
-    echo %GREEN%  ✔ 后端API: %YELLOW%http://localhost:!BACKEND_PORT!%NC%
-
-    :: 询问是否在浏览器中打开
-    echo.
-    echo %CYAN%是否在浏览器中打开前端页面？(Y/n):%NC%
-    set /p open_browser=
-    if /i not "%open_browser%"=="n" (
-        echo %CYAN%正在打开浏览器...%NC%
-        timeout /t 5 >nul
-        start http://localhost:!FRONTEND_PORT!
-        echo %GREEN%  ✔ 浏览器已打开%NC%
-    )
-) else (
-    echo %YELLOW%已跳过应用启动。您可以稍后手动启动应用：%NC%
-    echo  1. 启动后端: 打开命令行，运行以下命令
-    echo     call venv\Scripts\activate.bat
-    echo     cd backend
-    echo     python app.py
-    echo.
-    echo  2. 启动前端: 在另一个命令行窗口，运行以下命令
-    echo     cd frontend
-    echo     npm run serve
-)
-
-echo.
-echo %BLUE%感谢使用问卷星自动化系统。如需帮助，请参考文档或联系支持团队。%NC%
-echo %YELLOW%快速入门指南请参考项目根目录下的QUICK_START.md文件。%NC%
-echo.
-
-pause
+echo Press any key to open frontend in browser...
+pause >nul
+start http://localhost:%FRONTEND_PORT%

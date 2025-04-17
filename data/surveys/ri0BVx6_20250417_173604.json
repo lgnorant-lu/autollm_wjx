@@ -1,0 +1,252 @@
+{
+  "id": "ri0BVx6",
+  "url": "www.wjx.cn/vm/ri0BVx6.aspx",
+  "title": "Deepseek使用情况小调查",
+  "created_at": "20250417_173604",
+  "questions": [
+    {
+      "index": 1,
+      "type": 3,
+      "title": "*1.你的年龄是？",
+      "is_hidden": false,
+      "options": [
+        "18岁以下",
+        "18~22岁",
+        "22~25岁",
+        "25~30岁",
+        "30岁以上"
+      ]
+    },
+    {
+      "index": 2,
+      "type": 3,
+      "title": "*2.你的性别是？",
+      "is_hidden": false,
+      "options": [
+        "男",
+        "女"
+      ]
+    },
+    {
+      "index": 3,
+      "type": 3,
+      "title": "*3.你的学历是？",
+      "is_hidden": false,
+      "options": [
+        "小学",
+        "初中",
+        "高中",
+        "大专",
+        "本科",
+        "研究生"
+      ]
+    },
+    {
+      "index": 4,
+      "type": 3,
+      "title": "*4.请问您是否使用过GAI(deepseek那一类ai)？",
+      "is_hidden": false,
+      "options": [
+        "是",
+        "否"
+      ]
+    },
+    {
+      "index": 5,
+      "type": 3,
+      "title": "*5.请问您使用GAI的频率是多少？",
+      "is_hidden": false,
+      "options": [
+        "一周一次或更少",
+        "一天一次",
+        "半天一次",
+        "半天多次",
+        "一小时一次或更多"
+      ]
+    },
+    {
+      "index": 6,
+      "type": 5,
+      "title": "*6.您如何评估在可能可以使用GAI的场景中（如写作业、写论文），您使用GAI的频率？",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 7,
+      "type": 4,
+      "title": "*7.您一般使用GAI完成哪些功能？【多选题】",
+      "is_hidden": false,
+      "options": [
+        "信息检索与总结",
+        "日常办公与工作",
+        "学术论文写作与作业完成",
+        "绘画、生成小说等艺术性创作",
+        "解答心理困惑",
+        "进行决策咨询",
+        "聊天",
+        "其他"
+      ]
+    },
+    {
+      "index": 8,
+      "type": 5,
+      "title": "*8.您觉得GAI的使用给您带来的是好处更多还是坏处更多？",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 9,
+      "type": 5,
+      "title": "*9.您以后继续使用GAI的意愿有多高？",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 10,
+      "type": 5,
+      "title": "*10.我经常不自觉使用GAI",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 11,
+      "type": 5,
+      "title": "*11.GAI的回答能被直接用在我的作业中",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 12,
+      "type": 5,
+      "title": "*12.我总是更喜欢用GAI来查找信息",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 13,
+      "type": 5,
+      "title": "*13.我不能控制地使用GAI，即使它对我产生了负面影响",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 14,
+      "type": 5,
+      "title": "*14.GAI让我获得信息变得更简单了",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 15,
+      "type": 5,
+      "title": "*15.我更倾向于询问GAI而非独立思考",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 16,
+      "type": 5,
+      "title": "*16.几乎什么事我都要先询问GAI",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 17,
+      "type": 5,
+      "title": "*17.即使我控制了一段时间不使用GAI，过一会儿我还是会不受控制地再次使用它",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 18,
+      "type": 5,
+      "title": "*18.如果不能使用GAI，我会感到不舒服",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 19,
+      "type": 5,
+      "title": "*19.我更喜欢自己总结信息，而不是使用GAI",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 20,
+      "type": 5,
+      "title": "*20.GAI是我的好帮手",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 21,
+      "type": 5,
+      "title": "*21.我发现，如果没有GAI为我提供参考信息，做决定会变得困难",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 22,
+      "type": 5,
+      "title": "*22.尽管我想减少使用GAI的次数，但我还是失败了",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 23,
+      "type": 5,
+      "title": "*23.完成学习任务时，我倾向于询问GAI并采用它的答案",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 24,
+      "type": 5,
+      "title": "*24.GAI帮助我更快获得信息",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 25,
+      "type": 5,
+      "title": "*25.即使我想要独立思考，但不久后我还是会询问GAI",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 26,
+      "type": 5,
+      "title": "*26.如果GAI给了我回答，我就不会继续思考",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 27,
+      "type": 5,
+      "title": "*27.如果我需要做决定，我会首先想到让GAI为我提供参考信息",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 28,
+      "type": 5,
+      "title": "*28.如果没有GAI的帮助，在学习任务中遇到困难会让我想到放弃",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 29,
+      "type": 5,
+      "title": "*29.即使没有GAI，我也能很好地做出决定",
+      "is_hidden": false,
+      "options": []
+    },
+    {
+      "index": 30,
+      "type": 5,
+      "title": "*30.独自解决会是我在学习任务中遇到困难时的首选，而非询问GAI",
+      "is_hidden": false,
+      "options": []
+    }
+  ]
+}

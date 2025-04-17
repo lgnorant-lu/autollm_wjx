@@ -1,0 +1,18 @@
+[
+  {
+    "id": "10cafc6c-28e3-4f6a-9acb-db84feaa26cf",
+    "survey_id": "wWwct2F",
+    "created_at": "2025-04-17 17:18:09",
+    "status": "failed",
+    "file_path": "D:\\狗py\\pythonProject1\\wjx_api_trying_0\\data\\tasks\\10cafc6c-28e3-4f6a-9acb-db84feaa26cf.json",
+    "progress": 100
+  },
+  {
+    "id": "9b3ff551-e2be-4d3a-9635-8800a722cc91",
+    "survey_id": "wWwct2F",
+    "created_at": "2025-04-17 17:34:51",
+    "status": "completed",
+    "file_path": "D:\\狗py\\pythonProject1\\wjx_api_trying_0\\data\\tasks\\9b3ff551-e2be-4d3a-9635-8800a722cc91.json",
+    "progress": 100
+  }
+]
