@@ -18,17 +18,29 @@ import logging
 logger = logging.getLogger(__name__)
 
 # 版本信息
-def get_version():
-    """获取应用版本号"""
+def get_version_info():
+    """获取应用版本信息"""
     try:
-        with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'VERSION'), 'r') as f:
-            return f.read().strip()
+        import json
+        with open(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'VERSION'), 'r', encoding='utf-8') as f:
+            return json.load(f)
     except Exception as e:
         logger.warning(f"无法读取版本文件: {e}")
-        return "1.2.0"  # 默认版本
+        # 默认版本信息
+        return {
+            "version": "1.2.0",
+            "name": "问卷星自动化系统",
+            "release_date": "2025-04-19",
+            "description": "优化品赞IP代理功能"
+        }
+
+def get_version():
+    """获取应用版本号"""
+    return get_version_info().get("version", "1.2.0")
 
 # 应用基础配置
 APP_VERSION = get_version()
+APP_VERSION_INFO = get_version_info()
 class Config:
     """
     应用程序配置类，包含所有全局配置项

@@ -18,7 +18,7 @@ import os
 config_bp = Blueprint('config', __name__)
 
 # 配置文件路径
-from config import Config, APP_VERSION
+from config import Config, APP_VERSION, APP_VERSION_INFO
 CONFIG_FILE = os.path.join(Config.DATA_DIR, 'system_config.json')
 
 def load_config():
@@ -146,11 +146,8 @@ def get_version():
     Returns:
         dict: 应用版本信息
     """
-    return jsonify({
-        "version": APP_VERSION,
-        "name": "问卷星自动化系统",
-        "description": "一个用于自动创建、提交和管理问卷星调查的系统"
-    })
+    # 返回完整的版本信息
+    return jsonify(APP_VERSION_INFO)
 
 @config_bp.route('', methods=['PUT'])
 def update_config():
