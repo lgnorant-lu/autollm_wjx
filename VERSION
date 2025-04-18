@@ -2,5 +2,17 @@
   "version": "1.2.0",
   "name": "问卷星自动化系统",
   "release_date": "2025-04-19",
-  "description": "优化品赞IP代理功能，添加网站分类和代理适用性检查"
+  "description": "优化品赞IP代理功能，添加网站分类和代理适用性检查",
+  "history": [
+    {
+      "version": "1.1.0",
+      "release_date": "2025-04-15",
+      "description": "添加对阿里云通义大模型、Google Gemini API和兔子API的支持"
+    },
+    {
+      "version": "1.0.0",
+      "release_date": "2025-04-01",
+      "description": "首次正式发布，支持问卷解析与分析、多种题型自动填写、随机答案生成等功能"
+    }
+  ]
 }
