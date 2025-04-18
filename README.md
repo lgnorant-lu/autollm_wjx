@@ -1,5 +1,7 @@
 # 问卷星自动化系统
 
+[![版本](https://img.shields.io/badge/版本-1.2.0-blue.svg)](VERSION)
+
 一个用于自动创建、提交和管理问卷星调查的系统，支持随机生成答案和使用大语言模型(LLM)生成答案。
 
 ## 文档导航
@@ -10,7 +12,7 @@
 | **快速入门** | [快速入门指南](docs/guides/QUICK_START.md) | 适合新手用户的快速入门指南 |
 | **部署指南** | [部署指南](docs/guides/Deployment.md)<br>[完整Docker部署指南](docs/guides/Docker_Deployment_Guide.md)<br>[关于Docker的说明](docs/guides/Docker_Explanation.md) | 包含一键式部署、Docker部署和本地直接运行等多种方式 |
 | **开发指南** | [开发指南](docs/guides/Development.md) | 适合开发者的二次开发指南 |
-| **测试指南** | [测试指南](docs/guides/Testing.md) | 说明如何进行单元测试和集成测试 |
+| **测试指南** | [测试指南](docs/testing_guide.md)<br>[参数化测试](docs/testing/llm_testing.md)<br>[代理测试](docs/testing/proxy_testing.md) | 说明如何进行单元测试和集成测试 |
 | **用户指南** | [用户指南](docs/guides/User.md) | 说明系统的使用方法 |
 | **设计文档** | [架构设计](docs/design/Architecture.md)<br>[数据库设计](docs/design/Database.md)<br>[接口设计](docs/design/API.md)<br>[安全设计](docs/design/Security.md) | 系统设计相关文档 |
 | **项目管理** | [项目结构](docs/project/Structure.md)<br>[任务进度](docs/project/Thread.md)<br>[变更日志](docs/project/Log.md)<br>[问题跟踪](docs/project/Issues.md)<br>[图表文档](docs/project/Diagram.md) | 项目管理相关文档 |
@@ -337,6 +339,28 @@ docker-compose logs
 3. 前端代码位于 `frontend` 目录
 4. 后端代码位于 `backend` 目录
 5. 进行修改后，重新构建并启动应用
+
+## 版本历史
+
+### v1.2.0 (2025-04-19)
+- 优化品赞IP代理功能，添加网站分类和代理适用性检查
+- 添加对国内外网站的自动判断，只对国内网站使用品赞代理
+- 优化LLM提供商分类，对国内外提供商使用不同的代理策略
+- 更新代理相关文档，添加详细的使用说明
+
+### v1.1.0 (2025-04-15)
+- 添加对阿里云通义大模型的支持
+- 添加对Google Gemini API的支持
+- 添加对兔子API的支持
+- 优化LLM生成器的接口，提高兼容性
+
+### v1.0.0 (2025-04-01)
+- 首次正式发布
+- 支持问卷解析与分析
+- 支持多种题型自动填写（单选、多选、填空、评分等）
+- 支持随机答案生成
+- 支持使用大语言模型(LLM)生成智能答案
+- 支持批量任务管理与执行
 
 ## 许可证
 
