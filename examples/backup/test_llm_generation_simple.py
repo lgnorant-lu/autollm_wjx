@@ -32,7 +32,7 @@ def test_llm_prompt():
         logger.info(f"问题数量: {len(survey_data.get('questions', []))}")
         
         # 初始化LLM提供商
-        api_key = "sk-6a184121b6294b348256264e172ddac0"  # 示例密钥
+        api_key = "sk-6a184121b6294b348256264e172ddaci0"  # 示例密钥
         provider = AliyunProvider(api_key=api_key)
         
         # 生成提示词
