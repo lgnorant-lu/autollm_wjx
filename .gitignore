@@ -43,10 +43,17 @@ frontend/dist/
 # Data and runtime files
 data/*.json
 data/archive/*.json
+data/surveys/*.json
+data/tasks/*.json
+data/indexes/*.json
+data/indexes/*.json.bak
 backend/data/tasks/*/
 backend/data/surveys/*.json
 backend/data/ip_usage.json
 backend/data/stats.json
+
+# Commit messages
+*_commit_message.txt
 
 # IDE files
 .idea/
