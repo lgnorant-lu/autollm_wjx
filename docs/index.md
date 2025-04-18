@@ -15,11 +15,24 @@
 ## 用户指南
 
 - [用户指南](guides/User.md) - 系统功能和操作说明
+- [使用示例](examples/usage_examples.md) - LLM API和IP代理的使用示例
+- [品赞IP代理配置](proxy/pinzan_proxy_config.md) - 品赞IP代理的配置指南
+- [代理测试](testing/proxy_testing.md) - 代理测试的详细指南
+- [代理优化](proxy/proxy_optimization.md) - 代理基类和工厂类的优化说明
 
 ## 开发文档
 
 - [开发指南](guides/Development.md) - 二次开发相关信息
-- [测试指南](guides/Testing.md) - 如何进行测试
+- [测试指南](testing_guide.md) - 如何进行测试
+- [参数化测试脚本](testing_guide.md#参数化测试脚本) - 统一的参数化测试脚本使用说明
+- [代理测试指南](testing/proxy_testing.md) - 代理测试的详细指南
+- [HTTP代理测试](testing/proxy_testing.md#HTTP代理问题) - HTTP代理测试的指南
+- [HTTPS代理测试](testing/proxy_testing.md#HTTPS代理问题) - HTTPS代理测试的指南
+- [SOCKS5代理测试](testing/proxy_testing.md#SOCKS5代理问题) - SOCKS5代理测试的指南
+- [LLM测试指南](testing/llm_testing.md) - LLM测试的详细指南
+- [LLM提供商配置](testing/llm_testing.md#LLM提供商配置) - 不同提供商的配置说明
+- [LLM测试类型](testing/llm_testing.md#测试类型) - 支持的测试类型
+- [LLM常见问题](testing/llm_testing.md#常见问题) - LLM测试的常见问题及解决方案
 
 ## 设计文档
 
@@ -33,12 +46,20 @@
 - [项目结构](project/Structure.md) - 项目文件结构
 - [变更日志](project/Log.md) - 项目变更记录
 - [问题追踪](project/Issues.md) - 已知问题和解决方案
+- [品赞IP代理常见问题](proxy/pinzan_proxy_config.md#常见问题) - 品赞IP代理的常见问题及解决方案
+- [代理测试常见问题](testing/proxy_testing.md#常见问题) - 代理测试的常见问题及解决方案
+- [LLM测试常见问题](testing/llm_testing.md#常见问题) - LLM测试的常见问题及解决方案
+- [故障排除](testing/proxy_testing.md#故障排除) - 故障排除的指南
 - [任务进度](project/Thread.md) - 开发任务进度
 - [图表文档](project/Diagram.md) - 系统相关图表
 
 ## API参考
 
 - [API参考文档](references/API.md) - API详细说明
+- [LLM API使用示例](usage_examples.md#LLM-API使用示例) - LLM API的使用示例
+- [LLM测试工具](llm_testing.md#LLM测试工具) - LLM测试工具的使用说明
+- [IP代理API使用示例](usage_examples.md#IP代理使用示例) - IP代理API的使用示例
+- [代理测试工具](proxy_testing.md#代理测试工具) - 代理测试工具的使用说明
 
 ## 中文技术文档
 

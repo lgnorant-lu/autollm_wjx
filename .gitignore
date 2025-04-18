@@ -26,6 +26,8 @@ logs/
 
 # Environment variables
 .env
+.env.real
+.env.test
 
 # Node dependencies
 frontend/node_modules/

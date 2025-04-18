@@ -1,6 +1,6 @@
 # 问卷星自动化系统快速入门指南
 
-[返回主页](README.md) | [部署指南](docs/guides/Deployment.md) | [用户指南](docs/guides/User.md)
+[返回主页](../../README.md) | [部署指南](Deployment.md) | [用户指南](User.md)
 
 本指南提供了问卷星自动化系统的快速部署和使用说明，适合各种类型的用户。
 

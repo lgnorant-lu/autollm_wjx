@@ -55,6 +55,37 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
+# 加载环境变量
+import os
+import sys
+
+# 添加项目根目录到Python路径
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+# 加载.env文件
+try:
+    from dotenv import load_dotenv
+    # 尝试加载.env文件
+    if os.path.exists('.env'):
+        load_dotenv('.env')
+        logger.info("从.env加载环境变量")
+    else:
+        logger.warning("未找到.env文件")
+
+    # 设置默认的环境变量
+    if not os.environ.get('ALIYUN_API_KEY'):
+        os.environ['ALIYUN_API_KEY'] = "sk-6a184121b6294b348256264e172ddac0"
+        logger.info("设置默认阿里云API密钥")
+
+    if not os.environ.get('PINZAN_API_URL'):
+        os.environ['PINZAN_API_URL'] = "https://service.ipzan.com/core-extract?num=1&no=20250216408295864496&minute=1&format=json&repeat=1&protocol=1&pool=ordinary&mode=auth&secret=v5eomjhvanppt08"
+        logger.info("设置默认品赞API URL")
+
+    logger.info(f"当前环境变量: ALIYUN_API_KEY={os.environ.get('ALIYUN_API_KEY', '')[:5]}..., PINZAN_API_URL={os.environ.get('PINZAN_API_URL', '')[:20]}...")
+
+except ImportError:
+    logger.warning("未安装python-dotenv包，无法加载.env文件")
+
 # 创建Flask应用
 app = Flask(__name__)
 CORS(app)  # 启用跨域支持
@@ -63,6 +94,11 @@ CORS(app)  # 启用跨域支持
 from routes.survey_routes import survey_bp
 from routes.task_routes import task_bp
 from routes.config_routes import config_bp
+
+# 加载配置
+from routes.config_routes import load_config
+config = load_config()
+logger.info(f"加载系统配置: {config}")
 
 # 注册路由蓝图
 app.register_blueprint(survey_bp, url_prefix='/api/surveys')

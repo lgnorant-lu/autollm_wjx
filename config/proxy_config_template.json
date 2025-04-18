@@ -1,0 +1,19 @@
+{
+    "enabled": true,
+    "rotation_strategy": "round_robin",
+    "providers": [
+        {
+            "type": "pinzan",
+            "api_url": "YOUR_PINZAN_API_URL",
+            "protocol": "http",
+            "format": "auto",
+            "cache_time": 60
+        },
+        {
+            "type": "file",
+            "file_path": "proxies.txt",
+            "format": "ip:port",
+            "protocol": "http"
+        }
+    ]
+}

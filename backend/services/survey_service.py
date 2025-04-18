@@ -6,7 +6,7 @@ Date created:               2025/02/15
 Description:                问卷服务模块，提供问卷解析、存储和查询功能
 ----------------------------------------------------------------
 
-Changed history:            
+Changed history:
                             2025/02/22: 增加问卷标题和副标题提取支持
                             2025/03/03: 优化问卷结构存储格式
                             2025/04/17: 增强索引文件读写的鲁棒性
@@ -19,33 +19,33 @@ import time
 import logging
 import re
 import shutil  # 添加 shutil 导入
-from core.parser import parse_survey, extract_survey_id
-from config import Config
+from backend.core.parser import parse_survey, extract_survey_id
+from backend.config import Config
 
 logger = logging.getLogger(__name__)
 
 class SurveyService:
     """
     问卷服务类
-    
+
     负责问卷的获取、解析、存储和管理
     提供问卷元数据的索引和检索功能
     """
     def __init__(self):
         """
         初始化问卷服务
-        
+
         设置问卷存储目录和索引文件
         """
         self.surveys_dir = Config.SURVEYS_DIR
         self.index_file = Config.SURVEY_INDEX_FILE
         self.survey_cache = {}  # 添加问卷缓存字典
         self._load_index()
-    
+
     def _load_index(self):
         """
         加载问卷索引 (增强鲁棒性)
-        
+
         从索引文件中读取问卷元数据，失败时尝试备份文件
         """
         index_file = self.index_file
@@ -98,11 +98,11 @@ class SurveyService:
             self._save_index()
         else:
             self.index = loaded_index
-    
+
     def _save_index(self):
         """
         保存问卷索引 (增强鲁棒性 - 原子写入)
-        
+
         将问卷元数据写入索引文件，使用临时文件和备份机制
         """
         index_file = self.index_file
@@ -135,49 +135,49 @@ class SurveyService:
                     os.remove(temp_file)
                 except Exception as clean_e:
                     logger.error(f"清理临时索引文件失败: {clean_e}")
-    
+
     def parse_survey(self, url):
         """
         解析问卷
-        
+
         获取问卷内容并存储到文件中
         """
         logger.info(f"开始解析问卷: {url}")
-        
+
         try:
             # 获取问卷ID
             survey_id = extract_survey_id(url)
-            
+
             # 检查是否已存在该问卷的解析结果
             existing_survey = None
             for entry in self.index:
                 if entry["id"] == survey_id:
                     existing_survey = entry
                     break
-            
+
             # 解析问卷
             try:
                 logger.info(f"调用问卷解析函数: {url}")
                 parser_result = parse_survey(url) # 接收字典返回值
-                
+
                 # 检查是否解析成功
                 if 'error' in parser_result:
                     logger.error(f"解析问卷失败: {parser_result['error']}")
                     raise Exception(parser_result['error'])
-                
+
                 # 获取解析结果
                 survey_result = parser_result.get("survey_data", {})
                 questions_file_path = parser_result.get("questions_file_path")
 
                 timestamp = time.strftime("%Y%m%d_%H%M%S")
-                
+
                 # 获取问卷数据
                 survey_id = survey_result.get('id', survey_id)
                 survey_title = survey_result.get('title', '未知标题')
                 questions = survey_result.get('questions', [])
-                
+
                 logger.info(f"获取到问卷标题: {survey_title}, 题目数量: {len(questions)}")
-                
+
                 # 创建问卷数据
                 survey_data = {
                     "id": survey_id,
@@ -186,16 +186,16 @@ class SurveyService:
                     "created_at": timestamp,
                     "questions": questions
                 }
-                
+
                 # 确保data/surveys目录存在
                 os.makedirs(self.surveys_dir, exist_ok=True)
-                
+
                 # 保存问卷数据到新文件
                 survey_file_path = os.path.join(self.surveys_dir, f"{survey_id}_{timestamp}.json")
                 logger.info(f"保存问卷数据到文件: {survey_file_path}")
                 with open(survey_file_path, 'w', encoding='utf-8') as f:
                     json.dump(survey_data, f, ensure_ascii=False, indent=2)
-                
+
                 # 更新索引
                 index_entry = {
                     "id": survey_id,
@@ -204,7 +204,7 @@ class SurveyService:
                     "created_at": timestamp,
                     "file_path": survey_file_path
                 }
-                
+
                 # 如果已存在该问卷，更新索引并删除旧文件
                 if existing_survey:
                     # 删除旧文件
@@ -214,7 +214,7 @@ class SurveyService:
                             logger.info(f"删除已存在的问卷文件: {existing_survey['file_path']}")
                         except Exception as e:
                             logger.warning(f"删除旧问卷文件失败: {e}")
-                    
+
                     # 更新索引中的条目
                     for i, entry in enumerate(self.index):
                         if entry["id"] == survey_id:
@@ -223,7 +223,7 @@ class SurveyService:
                 else:
                     # 添加新条目到索引
                     self.index.append(index_entry)
-                
+
                 self._save_index()
 
                 # 尝试删除 data/questions_*.json 文件
@@ -238,23 +238,23 @@ class SurveyService:
 
                 logger.info(f"问卷解析完成: {survey_id}")
                 return survey_data
-                
+
             except Exception as e:
                 logger.error(f"解析问卷失败: {e}", exc_info=True)
                 raise Exception(f"解析问卷失败: {str(e)}")
-        
+
         except Exception as e:
             logger.error(f"解析问卷失败: {e}", exc_info=True)
             raise Exception(f"解析问卷失败: {str(e)}")
-    
+
     def get_all_surveys(self):
         """
         获取所有问卷的基本信息
-        
+
         返回问卷索引中的所有条目
         """
         return self.index
-    
+
     def get_survey_by_id(self, survey_id):
         """
         根据问卷ID获取问卷内容 (优先使用索引)
@@ -280,13 +280,16 @@ class SurveyService:
         survey_data = None
 
         try:
+            # 确保索引是最新的
+            self._load_index()
+
             # 2. 优先尝试从索引加载
             indexed_path = None
             for entry in self.index:
                 if entry.get("id") == survey_id:
                     indexed_path = entry.get("file_path")
                     break
-            
+
             if indexed_path:
                 logger.info(f"在索引中找到问卷 {survey_id} 的记录，路径: {indexed_path}")
                 if os.path.exists(indexed_path):
@@ -312,11 +315,11 @@ class SurveyService:
                 base_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
                 data_dir = os.path.join(base_dir, 'data')
                 surveys_dir = os.path.join(data_dir, 'surveys') # 定义 surveys 目录路径
-                
+
                 latest_time = 0
 
                 # 搜索顺序调整：优先搜索 surveys 目录下的 {id}_*.json，再搜索 data 根目录下的 questions_*.json
-                
+
                 # a. 搜索 data/surveys/ 目录
                 if os.path.exists(surveys_dir):
                     logger.debug(f"搜索目录: {surveys_dir}")
@@ -375,7 +378,7 @@ class SurveyService:
                     # 如果加载的是 questions_*.json，它可能没有 id 字段或 id 不匹配，强制修正
                     survey_data['id'] = survey_id
                     logger.info(f"修正问卷ID为: {survey_id}")
-                
+
                 # 添加到缓存
                 self.survey_cache[survey_id] = survey_data
                 logger.info(f"问卷 {survey_id} 已添加到缓存")
@@ -388,11 +391,11 @@ class SurveyService:
         except Exception as e:
             logger.error(f"获取问卷 {survey_id} 时发生意外错误: {e}", exc_info=True)
             return None
-    
+
     def delete_survey(self, survey_id):
         """
         删除问卷
-        
+
         根据问卷ID从索引中查找并删除问卷数据和文件
         """
         for i, entry in enumerate(self.index):
@@ -407,19 +410,19 @@ class SurveyService:
                 except Exception as e:
                     logger.error(f"删除问卷失败 {survey_id}: {e}")
                     return False
-        return False 
-    
+        return False
+
     def _extract_title_from_questions(self, questions):
         """
         从问卷数据中提取标题
-        
+
         尝试从问题对象中找到标题相关字段
         """
         try:
             # 尝试从问题对象中找到标题相关字段
             if hasattr(questions, 'title'):
                 return questions.title
-            
+
             # 尝试从第一个问题的标题中提取问卷标题
             if questions and len(questions) > 0:
                 if hasattr(questions[0], 'title'):
@@ -430,17 +433,17 @@ class SurveyService:
                         return first_title.split(':', 1)[0].strip()
                     elif '：' in first_title:
                         return first_title.split('：', 1)[0].strip()
-            
+
             logger.warning("无法从问题中提取标题")
         except Exception as e:
             logger.error(f"提取标题时发生错误: {e}", exc_info=True)
-        
+
         return None
 
     def _convert_to_serializable(self, questions):
         """
         将Question对象转换为可序列化的字典
-        
+
         递归转换问题对象和选项对象为字典
         """
         if hasattr(questions, '__iter__'):
@@ -452,7 +455,7 @@ class SurveyService:
                     # 如果options也是对象列表，也需要转换
                     if 'options' in q_dict and hasattr(q_dict['options'], '__iter__'):
                         q_dict['options'] = [
-                            opt.__dict__ if hasattr(opt, '__dict__') else opt 
+                            opt.__dict__ if hasattr(opt, '__dict__') else opt
                             for opt in q_dict['options']
                         ]
                     serializable_questions.append(q_dict)

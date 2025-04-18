@@ -7,8 +7,8 @@
           <el-button type="primary" @click="showAddDialog">添加问卷</el-button>
         </div>
       </template>
-      
-      <el-table v-loading="loading" :data="surveys" style="width: 100%">
+
+      <el-table v-loading="loading" :data="displayedSurveys" style="width: 100%">
         <el-table-column prop="id" label="ID" width="100" />
         <el-table-column prop="title" label="标题" />
         <el-table-column prop="url" label="URL" show-overflow-tooltip />
@@ -21,8 +21,21 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- 分页控件 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="totalSurveys"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </el-card>
-    
+
     <!-- 添加问卷对话框 -->
     <el-dialog v-model="addDialogVisible" title="添加问卷" width="500px">
       <el-form :model="surveyForm" label-width="80px">
@@ -37,7 +50,7 @@
         </span>
       </template>
     </el-dialog>
-    
+
     <!-- 查看问卷对话框 -->
     <el-dialog v-model="viewDialogVisible" title="问卷详情" width="800px">
       <div v-if="currentSurvey">
@@ -45,16 +58,16 @@
         <p><strong>URL: </strong>{{ currentSurvey.url }}</p>
         <p><strong>问卷ID: </strong>{{ currentSurvey.id }}</p>
         <p><strong>创建时间: </strong>{{ currentSurvey.created_at }}</p>
-        
+
         <el-divider />
-        
+
         <h3>题目列表</h3>
         <el-collapse v-if="currentSurvey.questions && currentSurvey.questions.length">
-          <el-collapse-item v-for="question in currentSurvey.questions" :key="question.index" 
+          <el-collapse-item v-for="question in currentSurvey.questions" :key="question.index"
                            :title="`${question.index}. ${question.title} (${getQuestionType(question.type)})`">
             <div v-if="question.options && question.options.length">
               <p><strong>选项:</strong></p>
-              <el-tag v-for="(option, idx) in question.options" :key="idx" 
+              <el-tag v-for="(option, idx) in question.options" :key="idx"
                      style="margin-right: 5px; margin-bottom: 5px;">
                 {{ option }}
               </el-tag>
@@ -64,26 +77,26 @@
         <el-empty v-else description="没有题目数据"></el-empty>
       </div>
     </el-dialog>
-    
+
     <!-- 创建任务对话框 -->
     <el-dialog v-model="taskDialogVisible" title="创建任务" width="500px">
       <el-form :model="taskForm" label-width="120px">
         <el-form-item label="问卷">
           <el-input v-model="taskForm.surveyTitle" disabled />
         </el-form-item>
-        
+
         <el-form-item label="填写数量">
           <el-input-number v-model="taskForm.count" :min="1" :max="1000" />
         </el-form-item>
-        
+
         <el-form-item label="使用代理">
           <el-switch v-model="taskForm.useProxy" />
         </el-form-item>
-        
+
         <el-form-item label="代理URL" v-if="taskForm.useProxy">
           <el-input v-model="taskForm.proxyUrl" placeholder="输入代理服务URL" />
         </el-form-item>
-        
+
         <el-form-item label="使用AI生成答案">
           <el-switch v-model="taskForm.useLLM" />
         </el-form-item>
@@ -99,29 +112,41 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { surveyApi, taskApi } from '../api'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 export default {
   name: 'SurveysView',
-  
+
   setup() {
     const loading = ref(false)
     const addLoading = ref(false)
     const taskLoading = ref(false)
-    
+
     const surveys = ref([])
     const currentSurvey = ref(null)
-    
+
+    // 分页相关变量
+    const currentPage = ref(1)
+    const pageSize = ref(10)
+    const totalSurveys = ref(0)
+
+    // 计算当前页显示的问卷
+    const displayedSurveys = computed(() => {
+      const startIndex = (currentPage.value - 1) * pageSize.value
+      const endIndex = startIndex + pageSize.value
+      return surveys.value.slice(startIndex, endIndex)
+    })
+
     const addDialogVisible = ref(false)
     const viewDialogVisible = ref(false)
     const taskDialogVisible = ref(false)
-    
+
     const surveyForm = ref({
       url: ''
     })
-    
+
     const taskForm = ref({
       surveyId: '',
       surveyTitle: '',
@@ -130,14 +155,14 @@ export default {
       proxyUrl: '',
       useLLM: false
     })
-    
+
     // 获取所有问卷
     const fetchSurveys = async () => {
       loading.value = true
       try {
         const response = await surveyApi.getAllSurveys()
         console.log('获取问卷响应:', response);
-        
+
         // 兼容不同的响应格式
         if (Array.isArray(response.data)) {
           surveys.value = response.data
@@ -149,6 +174,9 @@ export default {
           surveys.value = []
           console.log('没有找到问卷数据，使用空数组');
         }
+
+        // 更新总数
+        totalSurveys.value = surveys.value.length
       } catch (error) {
         console.error('获取问卷列表失败:', error)
         ElMessage.error('获取问卷列表失败: ' + (error.response?.data?.error || error.message || '未知错误'))
@@ -157,20 +185,20 @@ export default {
         loading.value = false
       }
     }
-    
+
     // 显示添加对话框
     const showAddDialog = () => {
       surveyForm.value.url = ''
       addDialogVisible.value = true
     }
-    
+
     // 添加问卷
     const addSurvey = async () => {
       if (!surveyForm.value.url) {
         ElMessage.warning('请输入问卷URL')
         return
       }
-      
+
       addLoading.value = true
       try {
         const response = await surveyApi.parseSurvey(surveyForm.value.url)
@@ -184,7 +212,7 @@ export default {
         addLoading.value = false
       }
     }
-    
+
     // 查看问卷详情
     const viewSurvey = async (survey) => {
       try {
@@ -196,14 +224,14 @@ export default {
         ElMessage.error('获取问卷详情失败')
       }
     }
-    
+
     // 准备创建任务
     const createTask = (survey) => {
       taskForm.value.surveyId = survey.id
       taskForm.value.surveyTitle = survey.title
       taskDialogVisible.value = true
     }
-    
+
     // 提交任务
     const submitTask = async () => {
       taskLoading.value = true
@@ -215,7 +243,7 @@ export default {
           proxy_url: taskForm.value.proxyUrl,
           use_llm: taskForm.value.useLLM
         }
-        
+
         const response = await taskApi.createTask(taskData)
         ElMessage.success('任务创建成功')
         taskDialogVisible.value = false
@@ -226,7 +254,7 @@ export default {
         taskLoading.value = false
       }
     }
-    
+
     // 确认删除
     const confirmDelete = (survey) => {
       ElMessageBox.confirm(
@@ -252,7 +280,7 @@ export default {
           // 用户取消操作
         })
     }
-    
+
     // 获取题型名称
     const getQuestionType = (type) => {
       const typeMap = {
@@ -266,11 +294,24 @@ export default {
       }
       return typeMap[type] || `未知类型(${type})`
     }
-    
+
     onMounted(() => {
       fetchSurveys()
     })
-    
+
+    // 分页处理函数
+    const handleSizeChange = (size) => {
+      console.log('SurveysView: 页面大小变化 ->', size);
+      pageSize.value = size
+      // 当页面大小变化时，重置到第一页
+      currentPage.value = 1
+    }
+
+    const handleCurrentChange = (page) => {
+      console.log('SurveysView: 页码变化 ->', page);
+      currentPage.value = page
+    }
+
     return {
       loading,
       addLoading,
@@ -282,13 +323,22 @@ export default {
       taskDialogVisible,
       surveyForm,
       taskForm,
+      // 分页相关
+      currentPage,
+      pageSize,
+      totalSurveys,
+      displayedSurveys,
+      handleSizeChange,
+      handleCurrentChange,
+      // 方法
       showAddDialog,
       addSurvey,
       viewSurvey,
       createTask,
       submitTask,
       confirmDelete,
-      getQuestionType
+      getQuestionType,
+      fetchSurveys
     }
   }
 }
@@ -303,5 +353,11 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.pagination-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
 }
 </style>

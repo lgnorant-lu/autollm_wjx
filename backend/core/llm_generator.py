@@ -6,281 +6,250 @@ Date created:               2025/02/23
 Description:                大语言模型答案生成模块，提供智能问卷填写功能
 ----------------------------------------------------------------
 
-Changed history:            
+Changed history:
                             2025/02/25: 添加多模型API支持(OpenAI、智谱、百度、阿里云)
                             2025/03/02: 优化提示词结构和错误处理
+                            2025/04/01: 重构为使用LLM抽象接口，添加兔子API和Gemini支持
 ----------------------------------------------------------------
 """
 
 import json
-import requests
 import os
-import time
-from typing import Dict, List, Any
 import logging
-import random
-from openai import OpenAI
+from typing import Dict, List, Any, Optional
+
+from .llm import LLMFactory
+from .llm.base import BaseLLMProvider
 
 logger = logging.getLogger(__name__)
-# logger.setLevel(logging.DEBUG)
 
 class LLMGenerator:
     """
     LLM答案生成器
-    
+
     基于大型语言模型生成问卷答案
     支持多种模型API和自定义提示词
     """
-    
-    def __init__(self, model_type="aliyun", api_key=None):
+
+    def __init__(self, model_type="aliyun", api_key=None, **kwargs):
         """
         初始化LLM生成器
-        
+
         Args:
-            model_type: 使用的模型类型，支持 "openai", "zhipu", "baidu", "aliyun"
+            model_type: 使用的模型类型，支持 "openai", "zhipu", "baidu", "aliyun", "tuzi", "gemini"
             api_key: API密钥
+            **kwargs: 其他参数
         """
         self.model_type = model_type
-        self.api_key = api_key or os.getenv(f"{model_type.upper()}_API_KEY")
-        
+        self.mock = kwargs.get('mock', False)  # 模拟模式
+
+        # 如果启用了模拟模式，使用模拟的API密钥
+        if self.mock:
+            self.api_key = api_key or f"mock-{model_type}-api-key"
+        else:
+            self.api_key = api_key or os.getenv(f"{model_type.upper()}_API_KEY")
+
         if not self.api_key:
             raise ValueError(f"未提供{model_type}的API密钥，请设置环境变量或直接传入")
-            
-        # 初始化不同模型的客户端
-        if model_type == "aliyun":
-            self.client = OpenAI(
-                api_key=self.api_key,
-                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
-            )
-        else:
-            # 初始化不同模型的API端点
-            self.endpoints = {
-                "openai": "https://api.openai.com/v1/chat/completions",
-                "zhipu": "https://open.bigmodel.cn/api/paas/v4/chat/completions",
-                "baidu": "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions",
-            }
-    
-    def generate_answers(self, question_data: Dict[str, Any]) -> Dict[str, Any]:
+
+        # 创建LLM提供商实例
+        kwargs['mock'] = self.mock  # 添加模拟模式参数
+
+        # 处理代理参数，如果存在
+        if 'proxy' in kwargs:
+            proxy = kwargs.pop('proxy', None)
+            if proxy:
+                # 将代理参数转换为OpenAI客户端支持的格式
+                proxies = {}
+                if isinstance(proxy, dict):
+                    # 如果是字典格式，直接使用
+                    proxies = proxy
+                elif isinstance(proxy, str):
+                    # 如果是字符串格式，转换为字典
+                    proxies = {'http': proxy, 'https': proxy}
+
+                # 对于所有提供商，传递代理参数
+                if model_type == 'aliyun':
+                    # 阿里云使用OpenAI客户端，需要设置环境变量
+                    import os
+                    # 设置环境变量代理
+                    if isinstance(proxies, dict):
+                        http_proxy = proxies.get('http')
+                        https_proxy = proxies.get('https')
+                        if http_proxy:
+                            os.environ['HTTP_PROXY'] = http_proxy
+                        if https_proxy:
+                            os.environ['HTTPS_PROXY'] = https_proxy
+                        logger.info(f"阿里云使用环境变量代理: HTTP_PROXY={http_proxy}, HTTPS_PROXY={https_proxy}")
+
+                    # 不传递代理参数给阿里云提供商
+                    # 对于阿里云，不需要在kwargs中设置代理参数
+                    # 因为我们已经在环境变量中设置了代理
+                    # 删除所有代理相关的参数
+                    for key in list(kwargs.keys()):
+                        if 'proxy' in key.lower():
+                            kwargs.pop(key, None)
+                else:
+                    # 其他提供商支持代理参数
+                    # 在创建LLM提供商实例时会添加代理参数
+                    logger.info(f"使用代理初始化LLM: {model_type}, 代理: {proxies}")
+
+        # 创建LLM提供商实例
+        try:
+            # 输出原始参数信息
+            logger.info(f"初始化LLM提供商前的参数: model_type={model_type}, api_key={self.api_key[:5]}...")
+            logger.info(f"原始 kwargs 包含的键: {list(kwargs.keys())}")
+
+            # 对于所有提供商，删除所有代理相关的参数
+            # 然后根据提供商类型添加适当的代理参数
+            kwargs_clean = kwargs.copy()
+
+            # 对于阿里云，不传递任何参数
+            if model_type == 'aliyun':
+                # 对于阿里云，只传递api_key参数，删除所有其他参数
+                kwargs_clean = {}
+                logger.info(f"阿里云提供商只使用api_key参数，删除所有其他参数")
+            else:
+                # 对于其他提供商，删除所有代理相关的参数，然后添加proxies参数
+                proxy_keys = []
+                for key in list(kwargs_clean.keys()):
+                    if 'proxy' in key.lower():
+                        proxy_keys.append(key)
+                        kwargs_clean.pop(key, None)
+                        logger.info(f"删除代理参数: {key}")
+
+                if proxy_keys:
+                    logger.info(f"删除了以下代理参数: {', '.join(proxy_keys)}")
+
+                # 添加proxies参数
+                if proxies:
+                    kwargs_clean['proxies'] = proxies
+                    logger.info(f"添加代理参数: proxies={proxies}")
+
+            # 输出清理后的参数信息
+            logger.info(f"清理后的 kwargs 包含的键: {list(kwargs_clean.keys())}")
+
+            # 使用清理后的参数创建LLM提供商实例
+            logger.info(f"开始创建LLM提供商实例: {model_type}")
+
+            # 对于阿里云，只传递api_key参数
+            if model_type == 'aliyun':
+                # 对于阿里云，直接导入并创建提供商实例，而不通过LLMFactory
+                # 参考官方文档：https://help.aliyun.com/zh/model-studio/first-api-call-to-qwen
+                try:
+                    # 尝试使用绝对导入
+                    from backend.core.llm.providers.aliyun_provider import AliyunProvider
+                    # 只传递api_key参数，不传递其他参数
+                    # 先清除环境变量中的代理设置
+                    import os
+                    http_proxy = os.environ.pop('HTTP_PROXY', None)
+                    https_proxy = os.environ.pop('HTTPS_PROXY', None)
+                    http_proxy_lower = os.environ.pop('http_proxy', None)
+                    https_proxy_lower = os.environ.pop('https_proxy', None)
+
+                    # 记录删除的环境变量
+                    if http_proxy or https_proxy or http_proxy_lower or https_proxy_lower:
+                        logger.info(f"删除环境变量中的代理设置: HTTP_PROXY={http_proxy}, HTTPS_PROXY={https_proxy}, http_proxy={http_proxy_lower}, https_proxy={https_proxy_lower}")
+
+                    # 创建提供商实例
+                    self.provider = AliyunProvider(api_key=self.api_key)
+                    logger.info(f"直接创建阿里云提供商实例，只使用api_key参数")
+
+                    # 恢复环境变量中的代理设置
+                    if http_proxy:
+                        os.environ['HTTP_PROXY'] = http_proxy
+                    if https_proxy:
+                        os.environ['HTTPS_PROXY'] = https_proxy
+                    if http_proxy_lower:
+                        os.environ['http_proxy'] = http_proxy_lower
+                    if https_proxy_lower:
+                        os.environ['https_proxy'] = https_proxy_lower
+                except Exception as e:
+                    # 如果导入失败，尝试使用相对导入
+                    logger.warning(f"导入AliyunProvider失败，尝试使用相对导入: {e}")
+                    try:
+                        # 尝试使用相对导入
+                        from core.llm.providers.aliyun_provider import AliyunProvider
+
+                        # 先清除环境变量中的代理设置
+                        import os
+                        http_proxy = os.environ.pop('HTTP_PROXY', None)
+                        https_proxy = os.environ.pop('HTTPS_PROXY', None)
+                        http_proxy_lower = os.environ.pop('http_proxy', None)
+                        https_proxy_lower = os.environ.pop('https_proxy', None)
+
+                        # 记录删除的环境变量
+                        if http_proxy or https_proxy or http_proxy_lower or https_proxy_lower:
+                            logger.info(f"删除环境变量中的代理设置: HTTP_PROXY={http_proxy}, HTTPS_PROXY={https_proxy}, http_proxy={http_proxy_lower}, https_proxy={https_proxy_lower}")
+
+                        # 只传递api_key参数，不传递其他参数
+                        self.provider = AliyunProvider(api_key=self.api_key)
+                        logger.info(f"使用相对导入创建阿里云提供商实例，只使用api_key参数")
+
+                        # 恢复环境变量中的代理设置
+                        if http_proxy:
+                            os.environ['HTTP_PROXY'] = http_proxy
+                        if https_proxy:
+                            os.environ['HTTPS_PROXY'] = https_proxy
+                        if http_proxy_lower:
+                            os.environ['http_proxy'] = http_proxy_lower
+                        if https_proxy_lower:
+                            os.environ['https_proxy'] = https_proxy_lower
+                    except Exception as e2:
+                        # 如果两种导入方式都失败，记录错误并抛出异常
+                        logger.error(f"导入AliyunProvider失败: {e2}")
+                        logger.error(f"异常类型: {type(e2).__name__}")
+                        logger.error(f"异常详情: {str(e2)}")
+                        raise
+            else:
+                self.provider = LLMFactory.create(model_type, self.api_key, **kwargs_clean)
+            logger.info(f"成功创建LLM提供商实例: {model_type}")
+
+            if not self.provider:
+                logger.error(f"创建LLM提供商实例失败: {model_type}, 返回了None")
+                raise ValueError(f"创建LLM提供商实例失败: {model_type}")
+        except Exception as e:
+            logger.error(f"创建LLM提供商实例异常: {e}")
+            logger.error(f"异常类型: {type(e).__name__}")
+            logger.error(f"异常详情: {str(e)}")
+            raise ValueError(f"创建LLM提供商实例失败: {model_type}")
+
+    def generate_answers(self, question_data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
         """为整个问卷生成答案"""
         try:
             logger.info(f"开始使用 {self.model_type} 生成答案")
             logger.info(f"问卷包含 {len(question_data.get('questions', []))} 个问题")
-            
-            # 构建提示词
-            prompt = self._build_prompt(question_data)
-            logger.debug(f"生成的提示词: {prompt[:200]}...")
-            
-            # 调用LLM API
-            logger.info(f"调用 {self.model_type} API...")
-            response = self._call_llm_api(prompt)
-            logger.debug(f"API响应: {response[:200]}...")
-            
-            # 解析响应
-            answers = self._parse_response(response, question_data)
+
+            # 调用提供商生成答案
+            answers = self.provider.generate_answers(question_data, **kwargs)
             logger.info(f"成功解析答案, 包含 {len(answers)} 个回答")
-            
+
             return answers
         except Exception as e:
             logger.error(f"生成答案失败: {str(e)}", exc_info=True)
             raise
-    
-    def _build_prompt(self, question_data: Dict[str, Any]) -> str:
-        """构建提示词"""
-        prompt = f"你是一位问卷填写助手。请帮我填写以下问卷，要求：\n"
-        prompt += "1. 答案要真实、合理，像真人填写\n"
-        prompt += "2. 对于选择题，只需回答选项编号\n"
-        prompt += "3. 对于填空题，提供合理且多样化的答案\n"
-        prompt += "4. 请按照规定的JSON格式返回答案\n\n"
-        
-        prompt += f"问卷标题：{question_data['title']}\n\n"
-        
-        for i, q in enumerate(question_data['questions']):
-            prompt += f"问题{i+1}（{q['index']}）：{q['title']}\n"
-            
-            if q['type'] == 3:
-                prompt += "（单选题）选项：\n"
-                for j, opt in enumerate(q['options']):
-                    prompt += f"  {j+1}. {opt}\n"
-                    
-            elif q['type'] == 4:
-                prompt += "（多选题）选项：\n"
-                for j, opt in enumerate(q['options']):
-                    prompt += f"  {j+1}. {opt}\n"
-                    
-            elif q['type'] == 6:
-                prompt += "（矩阵题）\n"
-                prompt += "行：\n"
-                for j, row in enumerate(q['rows']):
-                    prompt += f"  {j+1}. {row}\n"
-                prompt += "列：\n"
-                for j, col in enumerate(q['columns']):
-                    prompt += f"  {j+1}. {col}\n"
 
-            # 余下题目逻辑补充
-                        
-            prompt += "\n"
-            
-        prompt += """
-请用如下JSON格式返回答案：
-{
-  "answers": [
-    {"idx": "问题编号(纯数字)", "value": "答案值"},
-    ...
-  ]
-}
+    @staticmethod
+    def get_available_providers() -> Dict[str, str]:
+        """
+        获取可用的LLM提供商列表
 
-对于单选题，value是选项编号（如"2"）
-对于多选题，value是选项编号列表（如"1|3|4", "|"是分隔符）
-对于填空题，value是文本内容
-对于矩阵题，value是每行的选择（如"1!2,2!3,3!1"，表示第1行选第2项，第2行选第3项，第3行选第1项）
-对于量表题，value是填入分数（如"5"）
-对于排序题，value是选项编号列表（如"1,3,4,2", ","是分隔符）
+        Returns:
+            Dict[str, str]: 提供商名称和描述的字典
+        """
+        return LLMFactory.get_available_providers()
 
-只返回JSON格式数据，不要有其他解释性文字。
-"""
-        return prompt
-    
-    def _call_llm_api(self, prompt: str) -> str:
-        """调用不同的LLM API"""
-        if self.model_type == "aliyun":
-            return self._call_aliyun(prompt)
-        elif self.model_type == "openai":
-            return self._call_openai(prompt)
-        elif self.model_type == "zhipu":
-            return self._call_zhipu(prompt)
-        elif self.model_type == "baidu":
-            return self._call_baidu(prompt)
-        else:
-            raise ValueError(f"不支持的模型类型: {self.model_type}")
-    
-    def _call_openai(self, prompt: str) -> str:
-        """调用OpenAI API"""
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.api_key}"
-        }
-        
-        data = {
-            "model": "gpt-3.5-turbo",
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.7
-        }
-        
-        response = requests.post(self.endpoints["openai"], headers=headers, json=data)
-        
-        if response.status_code == 200:
-            return response.json()["choices"][0]["message"]["content"]
-        else:
-            raise Exception(f"OpenAI API错误: {response.status_code}, {response.text}")
-    
-    def _call_zhipu(self, prompt: str) -> str:
-        """调用智谱API（ChatGLM）"""
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.api_key}"
-        }
-        
-        data = {
-            "model": "glm-4",
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.7
-        }
-        
-        response = requests.post(self.endpoints["zhipu"], headers=headers, json=data)
-        
-        if response.status_code == 200:
-            return response.json()["choices"][0]["message"]["content"]
-        else:
-            raise Exception(f"智谱API错误: {response.status_code}, {response.text}")
-    
-    def _call_baidu(self, prompt: str) -> str:
-        """调用百度文心一言API"""
-        # 获取访问令牌
-        access_token = self._get_baidu_access_token()
-        
-        headers = {"Content-Type": "application/json"}
-        
-        data = {
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.7
-        }
-        
-        response = requests.post(
-            f"{self.endpoints['baidu']}?access_token={access_token}",
-            headers=headers,
-            json=data
-        )
-        
-        if response.status_code == 200:
-            return response.json()["result"]
-        else:
-            raise Exception(f"百度API错误: {response.status_code}, {response.text}")
-    
-    def _get_baidu_access_token(self) -> str:
-        """获取百度API访问令牌"""
-        api_key, secret_key = self.api_key.split(":")
-        
-        url = f"https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id={api_key}&client_secret={secret_key}"
-        
-        response = requests.get(url)
-        
-        if response.status_code == 200:
-            return response.json()["access_token"]
-        else:
-            raise Exception(f"获取百度访问令牌失败: {response.status_code}, {response.text}")
-    
-    def _call_aliyun(self, prompt: str) -> str:
-        """使用OpenAI客户端调用阿里云百炼API"""
-        try:
-            logger.info("准备调用阿里云百炼API")
-            
-            completion = self.client.chat.completions.create(
-                model="qwen-turbo",
-                messages=[
-                    {"role": "system", "content": "你是一个专业的问卷填写助手，请帮助用户填写问卷。"},
-                    {"role": "user", "content": prompt}
-                ]
-            )
-            
-            # 获取生成的内容
-            content = completion.choices[0].message.content
-            logger.info("成功获取API响应")
-            
-            return content
-            
-        except Exception as e:
-            logger.error(f"调用阿里云API失败: {str(e)}")
-            raise Exception(f"阿里云API调用失败: {str(e)}")
-    
-    def _parse_response(self, response: str, question_data: Dict[str, Any]) -> Dict[str, Any]:
-        """解析LLM返回的答案"""
-        try:
-            # 尝试解析JSON
-            ans_data = json.loads(response)
-            
-            # 验证格式
-            if "answers" not in ans_data:
-                raise ValueError("返回数据缺少'answers'字段")
-                
-            # 格式化为问卷提交格式
-            formatted_data = {}
-            
-            for ans in ans_data["answers"]:
-                idx = ans["idx"]
-                value = ans["value"]
-                formatted_data[idx] = value
-                
-            return formatted_data
-            
-        except json.JSONDecodeError:
-            # 如果无法解析JSON，尝试从文本中提取
-            import re
-            
-            pattern = r'"idx":\s*"([^"]+)",\s*"value":\s*"([^"]+)"'
-            matches = re.findall(pattern, response)
-            
-            formatted_data = {}
-            for idx, value in matches:
-                formatted_data[idx] = value
-                
-            return formatted_data 
+    @staticmethod
+    def create_provider(provider_name: str, api_key: str, **kwargs) -> Optional[BaseLLMProvider]:
+        """
+        创建LLM提供商实例
+
+        Args:
+            provider_name: 提供商名称
+            api_key: API密钥
+            **kwargs: 其他参数
+
+        Returns:
+            BaseLLMProvider: LLM提供商实例，如果提供商不存在则返回None
+        """
+        return LLMFactory.create(provider_name, api_key, **kwargs)

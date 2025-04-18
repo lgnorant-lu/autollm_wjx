@@ -8,10 +8,10 @@
         <el-radio-button value="timeline">时间线视图</el-radio-button>
       </el-radio-group>
     </div>
-    
+
     <!-- 表格视图 -->
     <div v-if="viewType === 'table'" class="table-view">
-      <el-table 
+      <el-table
         :data="currentPageData"
         v-loading="loading"
         @sort-change="handleSortChange"
@@ -20,19 +20,19 @@
         <slot></slot>
       </el-table>
     </div>
-    
+
     <!-- 卡片视图 -->
     <div v-else-if="viewType === 'card'" class="card-view">
       <el-row :gutter="20">
-        <el-col 
-          v-for="item in currentPageData" 
+        <el-col
+          v-for="item in currentPageData"
           :key="item.id"
-          :xs="24" 
-          :sm="12" 
-          :md="8" 
+          :xs="24"
+          :sm="12"
+          :md="8"
           :lg="6"
         >
-          <el-card 
+          <el-card
             class="data-card"
             :body-style="{ padding: '0px' }"
           >
@@ -41,7 +41,7 @@
         </el-col>
       </el-row>
     </div>
-    
+
     <!-- 时间线视图 -->
     <div v-else class="timeline-view">
       <el-timeline>
@@ -50,19 +50,20 @@
           :key="item.id"
           :timestamp="item.created_at"
           :type="getTimelineType(item.status)"
+          :color="getTimelineColor(item.status)"
         >
           <slot name="timeline" :item="item"></slot>
         </el-timeline-item>
       </el-timeline>
     </div>
-    
+
     <!-- 高级分页 -->
     <div class="pagination-wrapper" v-show="props.showPagination">
       <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
+        :current-page="currentPage"
+        :page-size="pageSize"
         :page-sizes="[10, 20, 50, 100]"
-        :total="total"
+        :total="props.total"
         layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -93,14 +94,22 @@ const props = defineProps({
   showPagination: {
     type: Boolean,
     default: true
+  },
+  initialPage: {
+    type: Number,
+    default: 1
+  },
+  initialPageSize: {
+    type: Number,
+    default: 10
   }
 })
 
-const emit = defineEmits(['page-change', 'sort-change'])
+const emit = defineEmits(['page-change', 'size-change', 'sort-change'])
 
 const viewType = ref('table')
-const currentPage = ref(1)
-const pageSize = ref(10)
+const currentPage = ref(props.initialPage)
+const pageSize = ref(props.initialPageSize)
 
 // 添加排序处理方法
 const handleSortChange = (sort) => {
@@ -108,13 +117,25 @@ const handleSortChange = (sort) => {
 }
 
 const handleSizeChange = (val) => {
+  // 更新页面大小
   pageSize.value = val
-  emit('page-change', { page: currentPage.value, size: val })
+  // 发送页面大小变化事件
+  emit('size-change', val)
+  // 重置到第一页
+  currentPage.value = 1
+  // 发送页码变化事件
+  emit('page-change', 1)
+  // 打印日志，便于调试
+  console.log('EnhancedTable: 页面大小变化 ->', val)
 }
 
 const handleCurrentChange = (val) => {
+  // 更新当前页码
   currentPage.value = val
-  emit('page-change', { page: val, size: pageSize.value })
+  // 只发送页码，不发送对象
+  emit('page-change', val)
+  // 打印日志，便于调试
+  console.log('EnhancedTable: 页码变化 ->', val)
 }
 
 const getTimelineType = (status) => {
@@ -126,21 +147,27 @@ const getTimelineType = (status) => {
   }
 }
 
-// 在初始化时设置数据
-const currentPageData = computed(() => {
-  if (!props.showPagination) {
-    return props.data || []
+const getTimelineColor = (status) => {
+  switch (status) {
+    case 'completed': return '#67C23A' // 成功绿色
+    case 'failed': return '#F56C6C' // 失败红色
+    case 'running': return '#409EFF' // 运行蓝色
+    case 'paused': return '#E6A23C' // 暂停黄色
+    default: return '#909399' // 默认灰色
   }
-  
-  // 如果显示分页，则计算当前页数据
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return (props.data || []).slice(start, end)
+}
+
+// 直接使用传入的数据，不在前端进行分页
+const currentPageData = computed(() => {
+  return props.data || []
 })
 
-// 重置分页当数据变化时
-watch(() => props.data, () => {
-  currentPage.value = 1
+// 监听数据变化
+watch(() => props.data, (newData, oldData) => {
+  // 只有当数据长度变化时才重置分页
+  if (!oldData || newData.length !== oldData.length) {
+    currentPage.value = 1
+  }
 })
 </script>
 

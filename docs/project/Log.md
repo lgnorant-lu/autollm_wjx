@@ -17,6 +17,7 @@
 
 | 模块 | 最近更新 | 变更说明 | 详细日志 |
 |------|----------|---------|---------|
+| 测试模块 | 2025-04-18 | 添加参数化测试脚本 | [update_2025_04_18.md](../logs/update_2025_04_18.md) |
 | 核心解析器 | 2024-01-10 | 修复特殊题型解析问题 | [parser-update-20240110.md](../logs/backend/parser-update-20240110.md) |
 | 提交引擎 | 2024-01-08 | 开始IP代理管理优化 | [submitter-update-20240108.md](../logs/backend/submitter-update-20240108.md) |
 | 任务管理 | 2023-12-05 | 实现任务暂停/继续功能 | [task-manager-update-20231205.md](../logs/backend/task-manager-update-20231205.md) |
@@ -27,6 +28,8 @@
 
 | 模块 | 最近更新 | 变更说明 | 详细日志 |
 |------|----------|---------|---------|
+| 图表组件 | 2025-04-18 | 优化提交时间分布图 | [update_2025_04_18.md](../logs/update_2025_04_18.md) |
+| 分页功能 | 2025-04-18 | 修复分页问题 | [update_2025_04_18.md](../logs/update_2025_04_18.md) |
 | 问卷管理 | 2024-01-05 | 优化问卷详情展示 | [survey-ui-update-20240105.md](../logs/frontend/survey-ui-update-20240105.md) |
 | 任务管理 | 2024-01-14 | 改进任务创建表单 | [task-ui-update-20240114.md](../logs/frontend/task-ui-update-20240114.md) |
 | 系统设置 | 2023-12-12 | 添加系统配置界面 | [settings-ui-update-20231212.md](../logs/frontend/settings-ui-update-20231212.md) |
@@ -46,6 +49,7 @@
 
 | 日期 | 变更说明 | 详细日志 |
 |------|---------|---------|
+| 2025-04-18 | 整合测试脚本，添加参数化测试 | [update_2025_04_18.md](../logs/update_2025_04_18.md) |
 | 2023-12-05 | 重构数据存储结构 | [architecture-update-20231205.md](../logs/architecture/architecture-update-20231205.md) |
 | 2023-12-15 | 优化API接口设计 | [api-design-update-20231215.md](../logs/architecture/api-design-update-20231215.md) |
 
@@ -153,4 +157,4 @@
 - 开发者: lgnorant-lu
 - 审阅者: Yong-dao
 - 测试: ming
-``` 
+```

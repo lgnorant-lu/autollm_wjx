@@ -1,0 +1,19 @@
+{
+    "enabled": true,
+    "rotation_strategy": "round_robin",
+    "providers": [
+        {
+            "type": "pinzan",
+            "api_url": "https://service.ipzan.com/core-extract?num=1&no=20250216408295864496&minute=1&format=json&repeat=1&protocol=1&pool=ordinary&mode=auth&secret=v5eomjhvanppt08",
+            "protocol": "http",
+            "format": "auto",
+            "cache_time": 60
+        },
+        {
+            "type": "file",
+            "file_path": "proxies.txt",
+            "format": "ip:port",
+            "protocol": "http"
+        }
+    ]
+}
